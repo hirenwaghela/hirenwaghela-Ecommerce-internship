@@ -4,8 +4,8 @@ e-commerce delivery app
 
 System Requirements to run the app:
 
-  expo-app from Google Play Store or Apple Store in your phone.  // install app in the phone
-  Node.js   : 12.16.2
+  expo-app from Google Play Store or Apple Store in your phone.  // install app in the phone ,
+  Node.js   : 12.16.2 ,
   Expo-cli   : 3.19.2
 
 
