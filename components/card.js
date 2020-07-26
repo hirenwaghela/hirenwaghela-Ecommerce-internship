@@ -6,21 +6,23 @@ import {Ionicons} from '@expo/vector-icons';
 const { width } = Dimensions.get('window')
 
 export const Card1 = (props) => (
-            <TouchableOpacity onPress={props.onPress} activeOpacity={0.8} style={{marginVertical:5, backgroundColor:"#fff", elevation:4}}>
+            <View style={{marginVertical:5, backgroundColor:"#fff", elevation:4}}>
                 <View style={{ flexDirection:"row",width: '100%', height:220, }} > 
                     <View style={{paddingVertical:25, paddingLeft:15}}>
                         <View style={{width:110, height:160}}>
                             <Image
                                 style={styles.image}
-                                source={require("./../assets/swiper-1.png")}
+                                // source={require("./../assets/swiper-1.png")}
+                                source={{uri:`${props.imageurl}`}}
                             />
                         </View>
                     </View>    
                     <View style={{paddingVertical:25, paddingLeft:25}}>
-                        <Text style={{width:200, fontSize:20}}>Taj Mahal Tea - 1 kg</Text>
+                        {/* <Text style={{width:200, fontSize:20}}>Taj Mahal Tea - 1 kg</Text> */}
+                        <Text style={{width:200, fontSize:20}}>{props.title}</Text>
                         <View style={{flexDirection:'row'}}>
-                            <Text style={{marginTop:10, color:"#76BA1B", fontSize:17}}>Rs 150</Text>
-                            <Text style={{paddingLeft:20, marginTop:10, textDecorationLine: 'line-through', fontSize:17}}>MRP 300</Text>
+                            <Text style={{marginTop:10, color:"#76BA1B", fontSize:17}}>₹ {props.sellingprice}</Text> 
+                            <Text style={{paddingLeft:20, marginTop:10, textDecorationLine: 'line-through', fontSize:17}}>MRP {props.costprice}</Text>
                         </View>
                         <TouchableOpacity onPress={props.BuyNow} activeOpacity={0.8} style={{marginTop:70, height:32,width:100}}>
                                 <LinearGradient colors={["#76BA1B", "#4C9A2A"]} style={{height:32,width:100,alignItems:"center",justifyContent:"center", borderRadius:20, elevation:5}}>
@@ -29,7 +31,7 @@ export const Card1 = (props) => (
                         </TouchableOpacity>
                     </View>         
                 </View>
-            </TouchableOpacity>
+            </View>
     
   );
 
@@ -55,7 +57,7 @@ export const Card2 = () => (
 
             <View style={{paddingVertical:25, paddingLeft:25}}>
                 <Text style={{width:200, fontSize:20, marginBottom:5}}>Taj Mahal Tea - 1 kg</Text>
-                <View style={{ height:20, width:40, alignItems:"center", borderWidth:1, borderColor:"#010101", borderRadius:10}}>
+                <View style={{ height:20, width:40, alignItems:"center", borderRadius:10, elevation:5, backgroundColor:'#fff'}}>
                     <Text style={{ fontSize:12 }}>Qty-1</Text>
                 </View>
                 
@@ -139,15 +141,21 @@ export const MyOrdersCard = (props) => (
 );
 
 
-export const SmallCategoryCards = () => (
+export const SmallCategoryCards = (props) => (
     <View style={{alignItems:"center"}}>
-        <TouchableOpacity activeOpacity={0.8} style={{ width: width/3 - 30, height: width/3 - 30,  borderRadius:200, backgroundColor:"#fff", justifyContent:"center", alignItems:"center", elevation:10}}>
+        <TouchableOpacity activeOpacity={0.8} 
+                          style={{ width: width/3 - 20, height: width/3 - 20,  
+                                   borderRadius:205, backgroundColor:"#fff", justifyContent:"center", 
+                                   alignItems:"center", elevation:10}}
+                                   onPress={props.onPress}
+        >
                 <Image
-                    style={{ width: width/3 - 30, height: width/3 - 30,  borderRadius:200, resizeMode:"cover"}}
-                    source={require("./../assets/swiper-1.png")}
+                    style={{ width: width/3 - 20, height: width/3 - 20,  borderRadius:205, resizeMode:"cover"}}
+                    // source={require("./../assets/swiper-1.png")}
+                    source={{uri:`${props.imageurl}`}}
                 />    
         </TouchableOpacity>
-        <Text style={{fontSize:15}}>Tea</Text>
+        <Text style={{fontSize:15}}>{props.category}</Text>
     </View>
 );
 

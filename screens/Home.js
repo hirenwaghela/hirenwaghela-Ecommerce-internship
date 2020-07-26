@@ -1,35 +1,95 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import  { Swiper2 } from "../components/Swiper" ;
 import  { Card1, SmallCategoryCards } from "../components/card"
 import Header from "../components/header_search"
+import axios from 'axios';
 const width = Dimensions.get('screen').width
 
+const baseURL = 'https://api.dholpurshare.com/api/'
+
 export default class Home extends React.Component {
-  render(){
+    constructor(props) {
+        super(props);
+        this.state = {
+            category: [],
+            category_products: null,
+            isloading: false, 
+            latest_products: [],
+
+         };
+      }
+
+    componentDidMount() {
+        this.setState({isloading: true})
+        
+        // fetching all category
+        axios.get('https://server.dholpurshare.com/api/category')
+            .then((res)=>{
+                // console.log('\n\nCategory');
+                // console.log(res.data.data)
+                this.setState({category: res.data.data})
+            }).catch(err => {
+                console.log(err)
+            })
+        
+        // fetching all latest product
+        axios.get('https://server.dholpurshare.com/api/product')
+
+            .then((res)=>{
+                // console.log('\n\n\n Latest Products')
+                // console.log(res.data.data)
+                this.setState({latest_products: res.data.data})
+            }).catch(err => {
+                console.log(err)
+            })
+}
+
+render(){
     return (
         <View style={{flex:1, backgroundColor:"#fff"}}>
             <Header navigation={ () => this.props.navigation.openDrawer()}/>
             <ScrollView>
                 <Swiper2 image1=""/>
-                <View style={{flexDirection:"row", justifyContent:"space-around"}}>
-                    <View style={{height:250,justifyContent:"space-around"}}>
-                        <SmallCategoryCards/><SmallCategoryCards/>
-                    </View>
-                    <View style={{height:250,justifyContent:"space-around"}}>
-                        <SmallCategoryCards/><SmallCategoryCards/>
-                    </View>
-                    <View style={{height:250,justifyContent:"space-around"}}>
-                        <SmallCategoryCards/><SmallCategoryCards/>
-                    </View>
+                <View style={{width:width, marginVertical:20, alignItems:'center', justifyContent:'center'}}>
+                    <FlatList
+                        data={this.state.category}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => 
+                            <View style={{marginHorizontal:10, marginVertical:10}}>
+                                <SmallCategoryCards 
+                                        id={item._id} category={item.category} 
+                                        imageurl={item.imageurl}
+                                        onPress={() => this.props.navigation.navigate('Products',
+                                                            {
+                                                                category_title: item.category,
+                                                                category_products_id:item._id
+                                                            })}
+                                />
+                            </View>
+                        }
+                        numColumns={3}
+                    />
                 </View>
                 <View style={{paddingLeft:20, height:40, justifyContent:"center"}}>
                     <Text style={{fontSize:20, }}>Latest Product</Text>
                 </View>
-                <Card1 onPress={ () => this.props.navigation.navigate('Home2')}/>
-                <Card1 onPress={ () => this.props.navigation.navigate('Home2')}/>
-                <Card1 onPress={ () => this.props.navigation.navigate('Home2')}/>
-                <Card1 onPress={ () => this.props.navigation.navigate('Home2')}/>
+                
+                <FlatList
+                        data={this.state.latest_products}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item }) => 
+                            <Card1 id={item._id}    title={item.title}    imageurl={item.imageurl}    
+                                    costprice={item.costprice}    sellingprice={item.sellingprice}
+                                    BuyNow={ () => this.props.navigation.navigate('Product_Description',
+                                                                {
+                                                                    category_products_id:item._id
+                                                                }
+                                    )}
+                            />
+                        }
+
+                    />
             </ScrollView>
         </View>
       );

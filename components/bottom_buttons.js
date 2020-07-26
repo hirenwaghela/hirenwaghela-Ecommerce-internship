@@ -40,6 +40,15 @@ export const DrawerBottom = () => {
 
 }
 
+export const AddToCart = (props) => {
+  return (
+      <TouchableOpacity onPress={props.movetoCart} activeOpacity={1} style={styles.bottomView}>
+        <Text style={styles.textStyle}>Add To Cart</Text>
+      </TouchableOpacity>
+    );
+
+}
+
 const styles = StyleSheet.create({
     bottomView: {
         width: '100%',

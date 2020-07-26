@@ -8,7 +8,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Fontisto, FontAwesome, Ionicons } from '@expo/vector-icons';
 import Home from "./screens/Home";
-import Products from "./screens/Products"
+import Products from "./screens/Products";
+import Product_Description from "./screens/Product_Description"
 import MyCart from "./screens/MyCart";
 import MyProfile from "./screens/MyProfile";
 import Completed from "./screens/Completed";
@@ -29,8 +30,10 @@ const navOptionHandler = () => ({
 const HomeStack = () => {
   return(
       <Stack.Navigator>
+        {/* <Stack.Screen name="SignInOTP" component={SignInOTP}  options={navOptionHandler}/> */}
         <Stack.Screen name="Home1" component={Home}  options={navOptionHandler}/>
-        <Stack.Screen name="Home2" component={Products} options={navOptionHandler}/>
+        <Stack.Screen name="Products" component={Products} options={navOptionHandler}/>
+        <Stack.Screen name="Product_Description" component={Product_Description} options={navOptionHandler}/>
         <Stack.Screen name="MyCart" component={MyCart} options={navOptionHandler}/>
         <Stack.Screen name="OrderDetails" component={OrderDetails} options={navOptionHandler}/>
         <Stack.Screen name="Completed" component={Completed} options={navOptionHandler}/>
@@ -41,8 +44,7 @@ const HomeStack = () => {
 const ProfileStack = () => {
   return(
     <Stack.Navigator>
-      {/* <Stack.Screen name="SignInOTP" component={SignInOTP}  options={navOptionHandler}/> */}
-      <Stack.Screen name="MyProfile" component={MyProfile}  options={navOptionHandler}/>
+      <Stack.Screen name="MyProfile2" component={MyProfile}  options={navOptionHandler}/>
       <Stack.Screen name="MyAddress" component={MyAddress} options={navOptionHandler}/>
       <Stack.Screen name="MyOrders" component={MyOrders} options={navOptionHandler}/>
       <Stack.Screen name="MyCart" component={MyCart} options={navOptionHandler}/>
