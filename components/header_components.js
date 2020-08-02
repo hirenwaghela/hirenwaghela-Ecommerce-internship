@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, TextInput, Text, View, Dimensions } from 'react-native';
 import {AntDesign, MaterialCommunityIcons, FontAwesome5, MaterialIcons} from '@expo/vector-icons';
 import Constant from 'expo-constants';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 const { width } = Dimensions.get('window')
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const MyCartHeader = (props) => {
     return (

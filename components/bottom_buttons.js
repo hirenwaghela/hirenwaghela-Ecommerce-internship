@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, AsyncStorage } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 const { width } = Dimensions.get('window')
 
@@ -12,7 +12,7 @@ export const Bottom1 = (props) => {
 
 }
 
-export const Bottom2 = (props) => {
+export const ConfirmOrder = (props) => {
     return (
         <TouchableOpacity onPress={props.confirm} activeOpacity={1} style={styles.bottomView}>
           <Text style={styles.textStyle}>Confirm Order</Text>
@@ -30,10 +30,11 @@ export const UpdateAddress = (props) => {
 
 }
 
-export const DrawerBottom = () => {
+export const DrawerBottom = (props) => {
   return (
-      <TouchableOpacity activeOpacity={0.4} style={styles.DrawerbottomView}>
-        <AntDesign name="logout" size={20} color="black" style={{ marginRight:10}} />
+      <TouchableOpacity onPress={props.navigation}
+                        activeOpacity={0.4} style={styles.DrawerbottomView}>
+        <AntDesign name="logout" size={20} color="#76BA1B" style={{ marginRight:10}} />
         <Text style={{fontSize:20}}>Logout</Text>
       </TouchableOpacity>
     );
@@ -42,7 +43,10 @@ export const DrawerBottom = () => {
 
 export const AddToCart = (props) => {
   return (
-      <TouchableOpacity onPress={props.movetoCart} activeOpacity={1} style={styles.bottomView}>
+      <TouchableOpacity onPress={props.addProduct}
+                        //onPress={props.movetoCart} 
+                        activeOpacity={1} 
+                        style={styles.bottomView}>
         <Text style={styles.textStyle}>Add To Cart</Text>
       </TouchableOpacity>
     );

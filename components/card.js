@@ -35,7 +35,7 @@ export const Card1 = (props) => (
     
   );
 
-export const Card2 = () => (
+export const Card2 = (props) => (
     <View style={{marginVertical:5, backgroundColor:"#fff", elevation:4}}>
         <View style={{ flexDirection:"row",width: '100%', height:230, }} > 
             <View>
@@ -43,7 +43,7 @@ export const Card2 = () => (
                     <View style={{width:80, height:120}}>
                         <Image
                             style={styles.image}
-                            source={require("./../assets/swiper-1.png")}
+                            source={{uri:`${props.imageurl}`}}
                         />
                     </View>
                 </View>
@@ -56,16 +56,16 @@ export const Card2 = () => (
             </View>    
 
             <View style={{paddingVertical:25, paddingLeft:25}}>
-                <Text style={{width:200, fontSize:20, marginBottom:5}}>Taj Mahal Tea - 1 kg</Text>
+                <Text style={{width:200, fontSize:20, marginBottom:5}}>{props.title}</Text>
                 <View style={{ height:20, width:40, alignItems:"center", borderRadius:10, elevation:5, backgroundColor:'#fff'}}>
                     <Text style={{ fontSize:12 }}>Qty-1</Text>
                 </View>
                 
-                <Text style={{  textDecorationLine: 'line-through', fontSize:14, marginTop:3}}>MRP 300</Text>
+                <Text style={{  textDecorationLine: 'line-through', fontSize:14, marginTop:3}}>MRP {props.sellingprice}</Text>
                 
                 <View style={{flexDirection:"row", justifyContent:"space-between", marginRight:15, marginTop:5}}>
                     <Text style={{fontSize:14}}>Price/pc</Text>
-                    <Text style={{fontSize:14}}>₹ 150</Text>
+                    <Text style={{fontSize:14}}>₹ {props.costprice}</Text>
                 </View>
 
                 <View style={{flexDirection:"row", justifyContent:"space-between", marginRight:15, marginTop:5}}>
@@ -75,7 +75,7 @@ export const Card2 = () => (
 
                 <View style={{flexDirection:"row", justifyContent:"space-between", marginRight:15, marginTop:25}}>
                     <Text style={{fontSize:20}}>You Pay</Text>
-                    <Text style={{fontSize:20, color:"#76BA1B"}}>₹ 150</Text>
+                    <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {props.costprice}</Text>
                 </View>
             </View>         
         </View>
@@ -83,25 +83,25 @@ export const Card2 = () => (
 
 );
 
-export const Card3 = () => (
+export const Card3 = (props) => (
         <View style={{ flexDirection:"row",width: '100%', height:150, marginVertical:5, backgroundColor:"#fff", elevation:4 }} > 
             <View style={{paddingVertical:25, paddingLeft:35}}>
                 <View style={{width:60, height:100}}>
                     <Image
                         style={styles.image}
-                        source={require("./../assets/swiper-1.png")}
+                        source={{uri:`${props.imageurl}`}}
                     />
                 </View>
             </View>    
             <View style={{paddingVertical:25, paddingLeft:25}}>
-                <Text style={{width:200, fontSize:20}}>Taj Mahal Tea - 1 kg</Text>
+                <Text style={{width:200, fontSize:20}}>{props.title}</Text>
                 <Text style={{fontSize:12, marginTop:5}}>Qty-1</Text>
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontSize:12}}>Orser ID-</Text>
                     <Text style={{paddingLeft:20, fontSize:12}}>#DGHSHBDHS</Text>
                 </View>
                 <View style={{marginTop:10 ,alignItems:"flex-end"}}>
-                    <Text style={{fontSize:24, color:"#76BA1B"}}>₹ 150</Text>
+                    <Text style={{fontSize:24, color:"#76BA1B"}}>₹ {props.sellingprice}</Text>
                 </View>
             </View>         
         </View>
@@ -110,7 +110,7 @@ export const Card3 = () => (
 
 
 export const MyOrdersCard = (props) => (
-    <View style={{ flexDirection:"row",width: '100%', height:150, marginVertical:5, backgroundColor:"#fff", elevation:4 }} > 
+    <View style={{ flexDirection:"row",width: '100%', minHeight:150, marginVertical:5, backgroundColor:"#fff", elevation:4 }} > 
         <View style={{paddingVertical:25, paddingLeft:35}}>
             <View style={{width:60, height:100}}>
                 <Image
@@ -120,7 +120,7 @@ export const MyOrdersCard = (props) => (
             </View>
         </View>    
         <View style={{paddingVertical:25, paddingLeft:25}}>
-            <Text style={{width:200, fontSize:20}}>Taj Mahal Tea - 1 kg</Text>
+            <Text style={{width:200, fontSize:20}}>{props.titles}</Text>
             <Text style={{fontSize:12, marginTop:5}}>Qty-1</Text>
             <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={{fontSize:12}}>Orser ID-</Text>
@@ -131,8 +131,8 @@ export const MyOrdersCard = (props) => (
                 <Text style={{fontSize:11}}>20th June 2020</Text>
             </View>
             <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                <Text style={{fontSize:13, color:props.status=='Processing'?(props.status!=='Shipped'?'red':'blue'):(props.status!=='Shipped'?'#76BA1B':'blue')}}>{props.status}</Text>
-                <Text style={{fontSize:16, color:"#76BA1B"}}>₹ 150</Text>
+                <Text style={{fontSize:13, color:props.status=='processing'?(props.status!=='shipped'?'red':'blue'):(props.status!=='shipped'?'#76BA1B':'blue')}}>{props.status}</Text>
+                <Text style={{fontSize:16, color:"#76BA1B"}}>₹ {props.totalcost}</Text>
             </View>
             
         </View>         
@@ -157,7 +157,7 @@ export const SmallCategoryCards = (props) => (
         </TouchableOpacity>
         <Text style={{fontSize:15}}>{props.category}</Text>
     </View>
-);
+); 
 
   const styles = StyleSheet.create({
     image:{

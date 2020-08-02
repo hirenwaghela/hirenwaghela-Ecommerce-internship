@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import  { Card1 } from "../components/card";
-import Header from "../components/header_search";
+import Header_Search from "../components/header_search";
 import axios from 'axios';
 const width = Dimensions.get('screen').width
 
@@ -17,7 +17,7 @@ export default class Products extends React.Component {
 
   componentDidMount() {
         
-        // fetching all category products
+        // fetching all category products 2) API
         axios.get('https://server.dholpurshare.com/api/product/category/' + this.props.route.params.category_products_id)
             .then((res)=>{
                 // console.log('\n\nProducts By Category');
@@ -31,7 +31,9 @@ export default class Products extends React.Component {
   render(){
     return (
         <View style={{flex:1, backgroundColor:"#fff"}}>
-            <Header navigation={ () => this.props.navigation.openDrawer()}/>
+            <Header_Search navigation={ () => this.props.navigation.openDrawer()}
+                    cartIcon = { () => this.props.navigation.navigate('MyCart')}
+            />
             <ScrollView>
                 <View style={{paddingLeft:20, paddingTop:20, paddingBottom:10, height:40, justifyContent:"center"}}>
                     <Text style={{fontSize:25 }}>{this.props.route.params.category_title}</Text>
@@ -49,7 +51,6 @@ export default class Products extends React.Component {
                                                             })
                                         }
                         />
-                        //<Card1  BuyNow={ () => this.props.navigation.navigate('Product_Description')}/>
                     }
 
                 />

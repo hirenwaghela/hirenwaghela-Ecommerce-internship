@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, Alert, AsyncStorage } from 'react-native';
 import {AntDesign, MaterialCommunityIcons, FontAwesome5, MaterialIcons} from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constant from 'expo-constants';
@@ -7,17 +7,22 @@ import { AddToCart } from "../components/bottom_buttons";
 import axios from 'axios';
 
 
-export default class MyCart extends Component {
+export default class Product_Description extends Component {
     constructor(props) {
         super(props);
         this.state = {
             product_details: [],
+            userId:''
 
          };
       }
 
       componentDidMount() {
-        // fetching all product details
+
+        // fetching userId
+        this.UserId()
+
+        // fetching all product details 4) API
         axios.get('https://server.dholpurshare.com/api/product/' + this.props.route.params.category_products_id)
         .then((res)=>{
             console.log('\n\nProduct details');
@@ -26,6 +31,36 @@ export default class MyCart extends Component {
         }).catch(err => {
             console.log(err)
         })
+
+      }
+
+      UserId = async() => {
+        try{
+            let userId = await AsyncStorage.getItem('userId')
+            console.log('Product Description\nUSER__ID: ',userId)
+            this.setState({userId})
+        }
+        catch(err){
+            console.log(err)
+        }
+      }
+
+      addTocart = (userId,productId) => {
+
+        // Adding Product to Cart 5) API
+
+        console.log('Product Added')
+        console.log('userId: ', userId)
+        console.log('productId: ', productId)
+        axios.post('https://server.dholpurshare.com/api/cart', {
+            userid: userId ,
+	        productid: productId
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          Alert.alert('Product Added')
+          this.props.navigation.goBack()
       }
 
   render() {
@@ -50,7 +85,7 @@ export default class MyCart extends Component {
                                 
             </View>
         </View>
-        <ScrollView style={{backgroundColor:'#fff', marginBottom:50, paddingBottom:10}}>
+        <ScrollView style={{backgroundColor:'#fff'}}>
             <View style={{height:230, backgroundColor:"#fff", elevation:3, alignItems:'center', justifyContent:'center', elevation:5}}>
                 <View style={{width:150, height:200}}>
                     <Image
@@ -61,7 +96,6 @@ export default class MyCart extends Component {
             </View>
             <View style={{height:230, backgroundColor:"#fff"}}>
                 <View style={{paddingVertical:15, paddingLeft:25}}>
-                    <Text style={{width:320, fontSize:20}}>Category name not Defined</Text>
                     <Text style={{width:320, fontSize:20}}>{this.state.product_details.title}</Text>
                     <View style={{flexDirection:'row'}}>
                         <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {this.state.product_details.sellingprice}</Text>   
@@ -89,8 +123,9 @@ export default class MyCart extends Component {
                 <Text style={{fontSize:20, marginTop:10}}>Description</Text>
                 <Text style={{fontSize:16, color:'grey'}}>{this.state.product_details.description}.</Text>
             </View>
+            <View style={{height:70}}></View>
         </ScrollView>
-        <AddToCart movetoCart={ () => this.props.navigation.navigate('MyCart')}/>        
+        <AddToCart  addProduct={ () => this.addTocart(this.state.userId, this.state.product_details._id)} />        
       </View>
     );
   }

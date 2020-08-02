@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, ScrollView, Dimensions } from 'react-native';
 import { CompletedHeader } from "../components/header_components";
 import {Fontisto} from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 const width = Dimensions.get('screen').width
 
 export default class Completed extends Component {
@@ -25,9 +26,11 @@ export default class Completed extends Component {
 
         
         <View style={{alignItems:"center"}}>
-            <View style={{width:width-70, height:45, marginTop:40, alignItems:"center", justifyContent:"center" ,backgroundColor:"#76BA1B", borderRadius:25}}>
+            <TouchableOpacity onPress={ () => this.props.navigation.navigate('Home1')}
+                              style={{width:width-70, height:45, marginTop:40, alignItems:"center", 
+                                      justifyContent:"center" ,backgroundColor:"#76BA1B", borderRadius:25}}>
                 <Text style={{fontSize:22, color:"#fff"}}>Continue Your Shopping</Text>
-            </View>
+            </TouchableOpacity>
         </View>
     
       </View>

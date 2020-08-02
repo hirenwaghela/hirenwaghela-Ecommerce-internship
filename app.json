@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tecronx",
-    "slug": "tecronx",
+    "name": "techronx-internship",
+    "slug": "techronx-internship",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,6 +16,10 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "android": {
+      "package": "com.techronx.techronx",
+      "versionCode": 1
+    },
     "ios": {
       "supportsTablet": true
     },

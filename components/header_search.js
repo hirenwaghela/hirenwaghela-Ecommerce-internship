@@ -33,7 +33,7 @@ export default class Header extends React.Component {
              <TouchableOpacity onPress={this.props.navigation} activeOpacity={0.8}>
                <Feather name="menu" size={30} color="white" />
              </TouchableOpacity>
-             <View style={{flexDirection:"row" ,height: 35, width:250, borderRadius: 25, backgroundColor: "#fff"}}>
+             {/* <View style={{flexDirection:"row" ,height: 35, width:250, borderRadius: 25, backgroundColor: "#fff"}}>
                 <TextInput
                     style={{
                         height: 35,
@@ -49,8 +49,10 @@ export default class Header extends React.Component {
                         value={this.state.searchtext}
                 ></TextInput>
                 <EvilIcons name="search" size={28} color="#A9A9A9" style={{marginTop:5, marginLeft:-13}} />
-             </View>
-             <AntDesign name="shoppingcart" size={30} color="white" />
+             </View> */}
+             <TouchableOpacity onPress={this.props.cartIcon} style={{height:35, width:35}}>
+               <AntDesign name="shoppingcart" size={30} color="white" />
+             </TouchableOpacity>
           </View>
         </View>
       );

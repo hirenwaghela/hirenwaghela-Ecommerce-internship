@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList, AsyncStorage } from 'react-native';
 import  { Swiper2 } from "../components/Swiper" ;
 import  { Card1, SmallCategoryCards } from "../components/card"
-import Header from "../components/header_search"
+import Header_Search from "../components/header_search"
 import axios from 'axios';
 const width = Dimensions.get('screen').width
 
@@ -12,7 +12,7 @@ export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            category: [],
+            category: [], 
             category_products: null,
             isloading: false, 
             latest_products: [],
@@ -20,10 +20,27 @@ export default class Home extends React.Component {
          };
       }
 
+      localstoragevariables = async() => {
+        let isLogIn = await AsyncStorage.getItem('isLogIn')
+        let mobile = await AsyncStorage.getItem('mobile')
+        let token = await AsyncStorage.getItem('token')
+        let userId = await AsyncStorage.getItem('userId')
+        // let isLogIn = await AsyncStorage.getItem('isLogIn')
+        console.log('\n\nHome\n')
+        console.log('isLogIn ', isLogIn)
+        console.log('mobile ', mobile)
+        console.log('token\n',token)
+        console.log('userId\n',userId)
+        // console.log('isLogIn\n',isLogIn)
+      }
+
     componentDidMount() {
+
+        this.localstoragevariables()           // getting the localStorage variables
+
         this.setState({isloading: true})
         
-        // fetching all category
+        // fetching all category 1) API
         axios.get('https://server.dholpurshare.com/api/category')
             .then((res)=>{
                 // console.log('\n\nCategory');
@@ -33,7 +50,7 @@ export default class Home extends React.Component {
                 console.log(err)
             })
         
-        // fetching all latest product
+        // fetching all latest product 3) API
         axios.get('https://server.dholpurshare.com/api/product')
 
             .then((res)=>{
@@ -48,7 +65,9 @@ export default class Home extends React.Component {
 render(){
     return (
         <View style={{flex:1, backgroundColor:"#fff"}}>
-            <Header navigation={ () => this.props.navigation.openDrawer()}/>
+            <Header_Search  navigation={ () => this.props.navigation.openDrawer()}  
+                            cartIcon = { () => this.props.navigation.navigate('MyCart')}
+            />
             <ScrollView>
                 <Swiper2 image1=""/>
                 <View style={{width:width, marginVertical:20, alignItems:'center', justifyContent:'center'}}>

@@ -1,8 +1,11 @@
 import * as React from "react";
-import { Text, View, StyleSheet, TextInput, Button, Alert, ActivityIndicator, 
+import { Text, View, StyleSheet, TextInput, Button, Alert, ActivityIndicator, AsyncStorage, Image,
          Dimensions, TouchableOpacity } from "react-native";
 import * as FirebaseRecaptcha from "expo-firebase-recaptcha";
 import * as firebase from "firebase";
+import { Input, Item } from 'native-base';
+import axios from 'axios';
+
 const { width } = Dimensions.get('window')
 
 // PROVIDE VALID FIREBASE CONFIG HERE
@@ -42,6 +45,80 @@ export default class PhoneAuthScreen extends React.Component{
 
   }
 
+  checkLogInStatus = async() => {
+    let isLogIn = await AsyncStorage.getItem('isLogIn')
+    console.log('isLogIn ', isLogIn)
+    if(isLogIn == 'true'){
+      this.props.navigation.navigate('Home')
+    }
+ }
+
+ loginHandler = () => {
+              axios.post('https://server.dholpurshare.com/api/login', {
+                    mobile: this.state.phoneNumber
+                  })
+                  .then(res => {
+                    console.log(res)
+                    if (res.status === 422) {
+                      throw new Error('Validation failed.');
+                    }
+                    if (res.status !== 200 && res.status !== 201) {
+                      console.log('Error!');
+                      throw new Error('Could not authenticate you!');
+                    }
+                    return res.json();
+                  })
+                  .then(async resData => {
+                    console.log(resData);
+                    this.setState({
+      
+                      token: resData.token,
+                      userId: resData.userId
+                    });
+                    AsyncStorage.setItem('token', resData.token);
+                    AsyncStorage.setItem('userId', resData.userId);
+      
+
+                  })
+                  // .then(async()=>{
+
+                  //   const phoneProvider = new firebase.auth.PhoneAuthProvider();
+                  //   try {
+                  //     this.setState({
+                  //       verifyError: undefined,
+                  //       verifyInProgres: true,
+                  //       verificationId: ''
+                  //     })
+                  //     const verificationId = await phoneProvider.verifyPhoneNumber(
+                  //       '+91'+ this.state.phoneNumber,
+                  //       this.state.recaptchaVerifier.current
+                  //     );
+                  //     this.setState({
+                  //       verifyInProgress:false,
+                  //       verificationId: verificationId
+                  //     })
+                  //   // this.state.verificationCodeTextInput.current?.focus();
+                  //   } catch (err) {
+                  //     this.setState({
+                  //       verifyError: err,
+                  //       verifyInProgress: false
+                  //     })
+                  //   }
+                      
+                  // })
+                  
+                  .catch(err => {
+                    console.log(err);
+                    this.setState({
+                      error: err
+                    });
+                  });
+            }
+ 
+
+ componentDidMount() {
+      this.checkLogInStatus()
+ }
   render(){
     return (
       <View style={{flex:1, alignItems:'center', justifyContent:'center'}}>
@@ -49,60 +126,91 @@ export default class PhoneAuthScreen extends React.Component{
             ref={this.state.recaptchaVerifier}
             firebaseConfig={FIREBASE_CONFIG}
           />
+            <View style={{height:110}}></View>
+            <View style={{height:140, width:140, borderRadius:70, elevation:5}}>
+              <Image
+                  style={styles.image}
+                  source={require("./../assets/logo.jpeg")}
+              />
+            </View>
+            <View style={{alignItems:'center', marginTop:50}}>
+              <Text style={{fontSize:17, fontWeight:'bold'}}>Log In</Text>
+            </View>
+            <Item regular
+                  style={{width:width-80, marginTop:15, marginBottom:8}}
+            >
+                <Input  
+                    autoFocus={this.state.isConfigValid}
+                    autoCompleteType="tel"
+                    keyboardType="phone-pad"
+                    placeholder="Phone Number"
+                    editable={!this.state.verificationId}
+                    onChangeText={(phoneNumber) => this.setState({phoneNumber})}
+                />
+            </Item>
 
-          <TextInput
-            style={styles.textInput}
-            autoFocus={this.state.isConfigValid}
-            autoCompleteType="tel"
-            keyboardType="phone-pad"
-            textContentType="telephoneNumber"
-            placeholder="Phone Number"
-            editable={!this.state.verificationId}
-            onChangeText={(phoneNumber) => this.setState({phoneNumber})}
-          />
-          <View style={{width:width-60, height:45, marginBottom:30                                                                                
-                                                                                               }}>
+          <View style={{width:width-78, height:45, marginLeft:2 }}>
             <Button
               title={`${this.state.verificationId ? "Resend" : "Send"} OTP`}
               disabled={!this.state.phoneNumber}
               color='#76BA1B'
-              onPress={async () => {
-                const phoneProvider = new firebase.auth.PhoneAuthProvider();
-                try {
-                  this.setState({
-                    verifyError: undefined,
-                    verifyInProgres: true,
-                    verificationId: ''
-                  })
-                  const verificationId = await phoneProvider.verifyPhoneNumber(
-                    '+91'+ this.state.phoneNumber,
-                    this.state.recaptchaVerifier.current
-                  );
-                  this.setState({
-                    verifyInProgress:false,
-                    verificationId: verificationId
-                  })
-                  this.state.verificationCodeTextInput.current?.focus();
-                } catch (err) {
-                  this.setState({
-                    verifyError: err,
-                    verifyInProgress: false
-                  })
-                }
-              }}
+              onPress={this.loginHandler}
+                  
+
+              // onPress={ () => {
+              //   axios.post('https://server.dholpurshare.com/api/login', {
+              //     mobile: this.state.phoneNumber
+              //   })
+              //   .then(async(response)=> {
+              //     console.log(response);
+
+              //     AsyncStorage.setItem('token', response.data.token) // assigning token
+              //     AsyncStorage.setItem('userId', response.data.userId) // assigning userId
+              //   }).then(async()=>{
+
+              //     const phoneProvider = new firebase.auth.PhoneAuthProvider();
+              //   try {
+              //     this.setState({
+              //       verifyError: undefined,
+              //       verifyInProgres: true,
+              //       verificationId: ''
+              //     })
+              //     const verificationId = await phoneProvider.verifyPhoneNumber(
+              //       '+91'+ this.state.phoneNumber,
+              //       this.state.recaptchaVerifier.current
+              //     );
+              //     this.setState({
+              //       verifyInProgress:false,
+              //       verificationId: verificationId
+              //     })
+              //    // this.state.verificationCodeTextInput.current?.focus();
+              //   } catch (err) {
+              //     this.setState({
+              //       verifyError: err,
+              //       verifyInProgress: false
+              //     })
+              //   }
+                    
+              //   })
+                
+                
+              // }}
             />
           </View>
+
           {this.state.verifyError && (
             <Text style={styles.error}>{`Error: ${this.state.verifyError.message}`}</Text>
           )}
+
           {this.state.verifyInProgress && <ActivityIndicator style={styles.loader} />}
+          
           {this.state.verificationId ? (
             <Text style={styles.success}>
               A verification code has been sent to your phone
             </Text>
           ) : undefined}
           
-          <TextInput
+          {/* <TextInput
             ref={this.state.verificationCodeTextInput}
             style={styles.textInput}
             editable={!!this.state.verificationId}
@@ -110,8 +218,23 @@ export default class PhoneAuthScreen extends React.Component{
             onChangeText={(verificationCode) =>
               this.setState({verificationCode})
             }
-          />
-          <View style={{width:width-60, height:45}}>
+          /> */}
+
+          <Item regular
+                style={{width:width-80, marginTop:20, marginBottom:8
+                }}
+          >
+            <Input 
+              ref={this.state.verificationCodeTextInput}
+              editable={!!this.state.verificationId}
+              placeholder="Enter OTP"
+              onChangeText={(verificationCode) =>
+                this.setState({verificationCode})
+              }
+            />
+          </Item>
+
+          <View style={{width:width-78, height:45, marginLeft:2 }}>
             <Button
               title="Verify OTP"
               disabled={!this.state.verificationCode}
@@ -127,29 +250,38 @@ export default class PhoneAuthScreen extends React.Component{
                     this.state.verificationCode
                   );
                   const authResult = await firebase
-                    .auth()
+                    .auth() 
                     .signInWithCredential(credential);
                   this.setState({
                     confirmInProgress: false,
                     verificationId: '',
                     verificationCode: ''
                   })
-                  this.state.verificationCodeTextInput.current?.clear();
+                  //this.state.verificationCodeTextInput.current?.clear();
                   Alert.alert("Phone authentication successful!");
-                  this.props.navigation.navigate('Home1')
+                  console.log(this.state.phoneNumber)
+
+                  AsyncStorage.setItem('mobile', this.state.phoneNumber)  // assigning mobile no
+                  AsyncStorage.setItem('isLogIn', 'true')
+                  this.props.navigation.navigate('Home')
                 } catch (err) {
                   this.setState({
                     confirmError: err,
                     confirmInProgress: false
                   })
                 }
-              }}
+              }}    
             />
           </View>
+          <TouchableOpacity   onPress={ () => this.props.navigation.navigate('SignUpOTP')} 
+                                    style={{marginTop:20, flexDirection:'row'}}>
+                    <Text>New User? </Text>
+                    <Text style={{color:'#76BA1B'}}>Sign Up</Text>
+                </TouchableOpacity>
           
-          {this.state.confirmError && (
+          {/* {this.state.confirmError && (
             <Text style={styles.error}>{`Error: ${this.state.confirmError.message}`}</Text>
-          )}
+          )} */}
           {this.state.confirmInProgress && <ActivityIndicator style={styles.loader} />}
         </View>
       
@@ -158,6 +290,14 @@ export default class PhoneAuthScreen extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  image:{
+    flex: 1,
+    height: null, 
+    width: null, 
+    resizeMode: 'contain', 
+    borderWidth: 0.1, 
+    borderColor: '#D3D3D3'
+},
   container: {
     flex: 1,
     padding: 20,
@@ -215,7 +355,12 @@ const styles = StyleSheet.create({
 });
 
 
-
+// then(response => {
+//   return response.json();
+// })
+// .then(result => {
+//    console.log(result  )
+// })
 
 
 
