@@ -35,6 +35,8 @@ export default class PhoneAuthScreen extends React.Component{
     recaptchaVerifier: {current:null},
     verificationCodeTextInput: {current:null},
     phoneNumber: '',
+    token: '',
+    userId: '',
     verificationId: '',
     verifyError: false,
     verifyInProgress: false,
@@ -54,65 +56,66 @@ export default class PhoneAuthScreen extends React.Component{
  }
 
  loginHandler = () => {
-              axios.post('https://server.dholpurshare.com/api/login', {
-                    mobile: this.state.phoneNumber
-                  })
-                  .then(res => {
-                    console.log(res)
-                    if (res.status === 422) {
-                      throw new Error('Validation failed.');
-                    }
-                    if (res.status !== 200 && res.status !== 201) {
-                      console.log('Error!');
-                      throw new Error('Could not authenticate you!');
-                    }
-                    return res.json();
-                  })
-                  .then(async resData => {
-                    console.log(resData);
-                    this.setState({
-      
-                      token: resData.token,
-                      userId: resData.userId
-                    });
-                    AsyncStorage.setItem('token', resData.token);
-                    AsyncStorage.setItem('userId', resData.userId);
-      
 
-                  })
-                  // .then(async()=>{
+  fetch('https://server.dholpurshare.com/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mobile: this.state.phoneNumber
+        })
+      })
+      .then(res => {
+                console.log(JSON.stringify(res))
+                if (res.status === 422) {
+                  throw new Error('Validation failed.');
+                }
+                if (res.status !== 200 && res.status !== 201) {
+                  console.log('Error!');
+                  throw new Error('Could not authenticate you!');
+                }
+                return res.json();
+              })
+              .then( resData => {
+                console.log(resData);
+                this.setState({
+    
+                  token: resData.token,
+                  userId: resData.userId
+                })
+              })
+              .then(async()=>{
 
-                  //   const phoneProvider = new firebase.auth.PhoneAuthProvider();
-                  //   try {
-                  //     this.setState({
-                  //       verifyError: undefined,
-                  //       verifyInProgres: true,
-                  //       verificationId: ''
-                  //     })
-                  //     const verificationId = await phoneProvider.verifyPhoneNumber(
-                  //       '+91'+ this.state.phoneNumber,
-                  //       this.state.recaptchaVerifier.current
-                  //     );
-                  //     this.setState({
-                  //       verifyInProgress:false,
-                  //       verificationId: verificationId
-                  //     })
-                  //   // this.state.verificationCodeTextInput.current?.focus();
-                  //   } catch (err) {
-                  //     this.setState({
-                  //       verifyError: err,
-                  //       verifyInProgress: false
-                  //     })
-                  //   }
-                      
-                  // })
+                  const phoneProvider = new firebase.auth.PhoneAuthProvider();
                   
-                  .catch(err => {
-                    console.log(err);
                     this.setState({
-                      error: err
-                    });
-                  });
+                      verifyError: undefined,
+                      verifyInProgres: true,
+                      verificationId: ''
+                    })
+                    const verificationId = await phoneProvider.verifyPhoneNumber(
+                      '+91'+ this.state.phoneNumber,
+                      this.state.recaptchaVerifier.current
+                    );
+                    this.setState({
+                      verifyInProgress:false,
+                      verificationId: verificationId
+                    })
+                  // this.state.verificationCodeTextInput.current?.focus();
+                  
+                    
+                })
+                .catch(err => {
+                          console.log(err);
+                          this.setState({
+                            
+                              verifyError: err,
+                              verifyInProgress: false
+      
+                          });
+                        });
+            
             }
  
 
@@ -120,6 +123,7 @@ export default class PhoneAuthScreen extends React.Component{
       this.checkLogInStatus()
  }
   render(){
+    //console.log(this.state)
     return (
       <View style={{flex:1, alignItems:'center', justifyContent:'center'}}>
           <FirebaseRecaptcha.FirebaseRecaptchaVerifierModal
@@ -155,46 +159,6 @@ export default class PhoneAuthScreen extends React.Component{
               disabled={!this.state.phoneNumber}
               color='#76BA1B'
               onPress={this.loginHandler}
-                  
-
-              // onPress={ () => {
-              //   axios.post('https://server.dholpurshare.com/api/login', {
-              //     mobile: this.state.phoneNumber
-              //   })
-              //   .then(async(response)=> {
-              //     console.log(response);
-
-              //     AsyncStorage.setItem('token', response.data.token) // assigning token
-              //     AsyncStorage.setItem('userId', response.data.userId) // assigning userId
-              //   }).then(async()=>{
-
-              //     const phoneProvider = new firebase.auth.PhoneAuthProvider();
-              //   try {
-              //     this.setState({
-              //       verifyError: undefined,
-              //       verifyInProgres: true,
-              //       verificationId: ''
-              //     })
-              //     const verificationId = await phoneProvider.verifyPhoneNumber(
-              //       '+91'+ this.state.phoneNumber,
-              //       this.state.recaptchaVerifier.current
-              //     );
-              //     this.setState({
-              //       verifyInProgress:false,
-              //       verificationId: verificationId
-              //     })
-              //    // this.state.verificationCodeTextInput.current?.focus();
-              //   } catch (err) {
-              //     this.setState({
-              //       verifyError: err,
-              //       verifyInProgress: false
-              //     })
-              //   }
-                    
-              //   })
-                
-                
-              // }}
             />
           </View>
 
@@ -209,16 +173,6 @@ export default class PhoneAuthScreen extends React.Component{
               A verification code has been sent to your phone
             </Text>
           ) : undefined}
-          
-          {/* <TextInput
-            ref={this.state.verificationCodeTextInput}
-            style={styles.textInput}
-            editable={!!this.state.verificationId}
-            placeholder="Enter OTP"
-            onChangeText={(verificationCode) =>
-              this.setState({verificationCode})
-            }
-          /> */}
 
           <Item regular
                 style={{width:width-80, marginTop:20, marginBottom:8
@@ -260,6 +214,10 @@ export default class PhoneAuthScreen extends React.Component{
                   //this.state.verificationCodeTextInput.current?.clear();
                   Alert.alert("Phone authentication successful!");
                   console.log(this.state.phoneNumber)
+                  
+                  
+                  AsyncStorage.setItem('token', this.state.token);
+                  AsyncStorage.setItem('userId', this.state.userId);
 
                   AsyncStorage.setItem('mobile', this.state.phoneNumber)  // assigning mobile no
                   AsyncStorage.setItem('isLogIn', 'true')

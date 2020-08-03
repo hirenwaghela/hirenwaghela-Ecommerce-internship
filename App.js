@@ -66,12 +66,13 @@ const ProfileStack = () => {
 }
 
 const changeLogIn = async(props) => {
-
-    await AsyncStorage.setItem('isLogIn', 'false')
+    console.log('\n\nLogout')
+    await AsyncStorage.removeItem('isLogIn')
     await AsyncStorage.removeItem('mobile')
     await AsyncStorage.removeItem('token')
     await AsyncStorage.removeItem('userId')
 
+    console.log('Outside app\n')
     console.log('isLogIn ', isLogIn)
     console.log('mobile ', mobile)
     console.log('token ', token)

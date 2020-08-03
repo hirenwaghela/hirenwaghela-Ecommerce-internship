@@ -11,6 +11,8 @@ export default class EnterDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            token: '',
+            userId: '',
             mobile: '',
             name: '',
             email: '',
@@ -21,27 +23,104 @@ export default class EnterDetails extends Component {
          };
       }
 
-    submit = () => {
-        
-        axios.put('https://server.dholpurshare.com/api/signup', {
-            mobile: this.state.mobile,
-            email: this.state.email,
-            name: this.state.name,
-            address: this.state.address,
-            pincode: this.state.pincode,
-            city: this.state.city,
-            state: this.state.state
-          })
-          .then(response => {
-              console.log('\nEnterDetails\n')
-              console.log(response.data)
 
-            //   AsyncStorage.setItem('isLogIn', 'true')
-            //   AsyncStorage.setItem('token', response.data.token) // assigning token
-            //   AsyncStorage.setItem('userId', response.data.userId) // assigning userId
+      signUpHandler = () => {
+
+        fetch('https://server.dholpurshare.com/api/signup', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobile: this.state.mobile,
+                email: this.state.email,
+                name: this.state.name,
+                address: this.state.address,
+                pincode: this.state.pincode,
+                city: this.state.city,
+                state: this.state.state
+            })
           })
-        // console.log(this.state)
+            .then(res => {
+                console.log(JSON.stringify(res))
+                return res.json();
+            })
+            .then( resData => {
+                console.log(resData);
+                this.setState({
+                    token: resData.token,
+                    userId: resData.userId
+                    })
+            })
+            .then(async() =>{
+                AsyncStorage.setItem('isLogIn', 'true')
+                AsyncStorage.setItem('token', this.state.token) // assigning token
+                AsyncStorage.setItem('userId', this.state.userId) // assigning userId
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        this.props.navigation.navigate('Home')        
+    
+      }
+
+    submit = () => {
+
+        fetch('https://server.dholpurshare.com/api/signup', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobile: this.state.mobile,
+                email: this.state.email,
+                name: this.state.name,
+                address: this.state.address,
+                pincode: this.state.pincode,
+                city: this.state.city,
+                state: this.state.state
+            })
+          })
+            .then(res => {
+                console.log(JSON.stringify(res))
+                return res.json();
+            })
+            .then( resData => {
+                console.log(resData);
+                this.setState({
+                    token: resData.token,
+                    userId: resData.userId
+                    })
+            })
+            .then(async() =>{
+                AsyncStorage.setItem('isLogIn', 'true')
+                AsyncStorage.setItem('token', this.state.token) // assigning token
+                AsyncStorage.setItem('userId', this.state.userId) // assigning userId
+            })
+            .catch(err => {
+                console.log(err);
+            });
         this.props.navigation.navigate('Home')
+        
+        // axios.put('https://server.dholpurshare.com/api/signup', {
+        //     mobile: this.state.mobile,
+        //     email: this.state.email,
+        //     name: this.state.name,
+        //     address: this.state.address,
+        //     pincode: this.state.pincode,
+        //     city: this.state.city,
+        //     state: this.state.state
+        //   })
+        //   .then(response => {
+        //       console.log('\nEnterDetails\n')
+        //       console.log(response.data)
+
+        //     //   AsyncStorage.setItem('isLogIn', 'true')
+        //     //   AsyncStorage.setItem('token', response.data.token) // assigning token
+        //     //   AsyncStorage.setItem('userId', response.data.userId) // assigning userId
+        //   })
+        // // console.log(this.state)
+        // this.props.navigation.navigate('Home')
         
     }
 
