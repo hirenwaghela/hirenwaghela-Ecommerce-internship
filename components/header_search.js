@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, View, Dimensions, Text } from 'react-native';
 import {AntDesign, Feather,EvilIcons,MaterialIcons} from '@expo/vector-icons';
 import Constant from 'expo-constants';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Badge, Icon  } from 'native-base';
 const { width } = Dimensions.get('window')
 
 export default class Header extends React.Component {
@@ -50,8 +51,13 @@ export default class Header extends React.Component {
                 ></TextInput>
                 <EvilIcons name="search" size={28} color="#A9A9A9" style={{marginTop:5, marginLeft:-13}} />
              </View> */}
-             <TouchableOpacity onPress={this.props.cartIcon} style={{height:35, width:35}}>
+             <TouchableOpacity onPress={this.props.cartIcon} style={{height:45, width:35, flexDirection:'row'}}>
                <AntDesign name="shoppingcart" size={30} color="white" />
+               <View style={{marginLeft:-11}}>
+                  <View style={{height:15, width:15, borderRadius:7.5, backgroundColor:'red', alignItems:'center', justifyContent:'center'}}>
+                    <Text style={{color:'#fff'}}>{this.props.cart_list_length}</Text>
+                  </View>
+               </View>               
              </TouchableOpacity>
           </View>
         </View>

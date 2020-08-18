@@ -1,27 +1,60 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, Dimensions, Alert, FlatList, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Dimensions, Alert, FlatList, AsyncStorage, TouchableOpacity } from 'react-native';
 import { OrderDetailsHeader } from "../components/header_components";
 import { ConfirmOrder } from "../components/bottom_buttons";
 import { Cart3, Card3 } from "../components/card";
-import {Entypo} from '@expo/vector-icons';
+import {Entypo, Octicons} from '@expo/vector-icons';
+import Modal from 'react-native-modal';
 import axios from 'axios';
+var moment = require('moment');
 
 const width = Dimensions.get('screen').width
+const height = Dimensions.get('screen').height
 
-export default class Completed extends Component {
+export default class OrderDetails extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            isModalVisible: false,
             products_list: [], 
             total_amount: 0,
+            referenceId: null,
             order_value: 0,
-            discount: 0
+            discount: 0,
+            userId: null,
+            user_details: []
          };
       }
 
+    fetchDetails = () => {
+        
+        // fetching User Details  API
 
-    confirmOrder = async(total_amount) => {
+        axios.get('https://server.dholpurshare.com/api/user/' + this.state.userId)
+        .then((res)=>{
+            // console.log('\n\nUser details');
+            // console.log(res.data.data)
+            this.setState({user_details: res.data.data})
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+
+    UserId = async() => {
+        try{
+            let userId = await AsyncStorage.getItem('userId')
+            // console.log('My Profile\nUSER__ID: ',userId)
+            this.setState({userId})
+        }
+        catch(err){
+            console.log(err)
+        }
+        this.fetchDetails()
+    }
+
+
+    confirmOrder = (total_amount) => {
 
         // Confirming the order 7) API
 
@@ -29,23 +62,29 @@ export default class Completed extends Component {
         // console.log('userId: ', userId)
         // console.log('total_Cost: ', total_Cost)
 
-        // generating reference ID
-        var referenceId = Math.floor(Math.random() * 9000000000) + 1000000000;
-        // console.log(referenceId)
-        var userId = await AsyncStorage.getItem('userId')
-        console.log(userId)
+        console.log(this.state.userId)
         try {
             axios.post('https://server.dholpurshare.com/api/order', {
-                userid: userId ,
-                referenceid: referenceId,
+                userid: this.state.userId ,
+                referenceid: this.state.referenceId,
                 totalcost: total_amount
             })
-            .then(function (response) {
+            .then(response => {
                 console.log(response);
+                this.setState({isModalVisible: true},
+                    () => {
+                      setTimeout(() => {
+                        this.setState({isModalVisible: false})
+                        
+                      }, 1000);
+                      setTimeout(() => {
+                        this.props.navigation.navigate('Completed', {referenceId:this.state.referenceId})
+                      }, 1400)
+                      
+                    })
+                // Alert.alert('Order Confirmed')
             })
-            Alert.alert('Order Confirmed')
-            this.props.navigation.navigate('Completed')
-            
+             
         } catch (error) {
             console.log(error)
         }
@@ -58,7 +97,6 @@ export default class Completed extends Component {
             var order_value = 0;
             for(var i=0 ; i < list.length ; i++){
                 //console.log(list[i].sellingprice)
-                console.log(list[i].sellingprice)
                 order_value += parseInt(list[i].costprice,10)
                 total_amount += parseInt(list[i].sellingprice,10)
             }
@@ -71,9 +109,13 @@ export default class Completed extends Component {
     }
 
     componentDidMount() {
+        // generating reference ID
+
         this.setState({
-            products_list: Object.values(this.props.route.params)
+            products_list: Object.values(this.props.route.params),
+            referenceId: Math.floor(Math.random() * 9000000000) + 1000000000
         })
+        this.UserId()
         this.calculate()
     }
 
@@ -83,117 +125,136 @@ export default class Completed extends Component {
 
     return (
       <View style={{flex:1}}>
-        <OrderDetailsHeader goback={ () => this.props.navigation.goBack()}/>    
+        <OrderDetailsHeader goback={ () => this.props.navigation.goBack()}/> 
+        <Modal isVisible={this.state.isModalVisible}>
+              <View style={{height: height-600, width:width-100, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                    <Octicons name="checklist" size={45} color="#76BA1B" />
+                    <Text style={{fontSize:20, textAlign:'center'}}>Ordered Successfully!</Text>
+              </View>
+            </Modal>   
         <ScrollView>
-        <View style={{marginTop:40, marginHorizontal:20 ,height:30, alignItems:"center", justifyContent:"center",  backgroundColor:"#D3D3D3"}}>
-            <Text style={{fontSize:18}}>Order Summary</Text>
-        </View>
-        
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:15}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Order Date</Text>
-            </View>
-            <View style={{flex:1}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>06 Feb 2020</Text>
-            </View>
-        </View>
+            <View style={{height:20}}></View>
+            <View style={{flex:1, height:30, width:'100%', alignItems:'center'}}>
+                <View style={{flex:1, width:'95%', backgroundColor:"#D3D3D3"}}>
+                <View style={{ flex:1, alignItems:"center", justifyContent:"center"}}>
+                    <Text style={{fontSize:18, textAlign:'center'}}>Order Summary</Text>
+                </View>
 
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Bag ID</Text>
+                </View>
             </View>
-            <View style={{flex:1}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>134562</Text>
+            
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Order Date</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>{moment().format("Do MMM YY")}</Text>
+                    </View>
             </View>
-        </View>
-        
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Payment Mode</Text>
-            </View>
-            <View style={{flex:1}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>Cash on Delivery</Text>
-            </View>
-        </View>
-        
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Total Amount</Text>
-            </View>
-            <View style={{flex:1}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>₹ {this.state.total_amount}</Text>
-            </View>
-        </View>
-        
-        <View style={{marginTop:25, marginHorizontal:20 ,height:30, alignItems:"center", justifyContent:"center",  backgroundColor:"#D3D3D3"}}>
-            <Text style={{fontSize:18}}>Items in this cart ({this.state.products_list.length})</Text>
-        </View>
 
-            {/* Ordered Products List */}
-        <FlatList
-                data={this.state.products_list}
-                keyExtractor={item => item._id}
-                renderItem={({ item }) => 
-                        <Card3
-                            id={item._id}    productid={item.productid}    title={item.title} 
-                            sellingprice={item.sellingprice}
-                            imageurl={item.imageurl}
-                        />
-                }
-              /> 
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Bag ID</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>{this.state.referenceId}</Text>
+                    </View>
+            </View>
 
-        <View style={{marginTop:15, marginHorizontal:20 ,height:30, alignItems:"center", justifyContent:"center",  backgroundColor:"#D3D3D3"}}>
-            <Text style={{fontSize:18}}>Payment Summary</Text>
-        </View>
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Payment Mode</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>Cash on Delivery</Text>
+                    </View>
+            </View>
 
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:15}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Order Value</Text>
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Total Amount</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>₹ {this.state.total_amount}</Text>
+                    </View>
             </View>
-            <View style={{flex:1, alignItems:"flex-end"}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>₹ {this.state.order_value}</Text>
-            </View>
-        </View>
+            
+            <View style={{height:20}}></View>
+            <View style={{flex:1, height:30, width:'100%', alignItems:'center'}}>
+                <View style={{flex:1, width:'95%', backgroundColor:"#D3D3D3"}}>
+                <View style={{ flex:1, alignItems:"center", justifyContent:"center"}}>
+                    <Text style={{fontSize:18, textAlign:'center'}}>Items in this cart ({this.state.products_list.length})</Text>
+                </View>
 
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Discount</Text>
+                </View>
             </View>
-            <View style={{flex:1, alignItems:"flex-end"}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>{this.state.discount}%</Text>
-            </View>
-        </View>
-        
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3, marginBottom:7}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:15}}>Delivery Fee</Text>
-            </View>
-            <View style={{flex:1, alignItems:"flex-end"}}>
-                <Text style={{fontSize:15, color:"#76BA1B"}}>0</Text>
-            </View>
-        </View>
-        <View style={{marginHorizontal:20 ,borderBottomWidth:1, borderColor:"#D3D3D3"}}></View>
-        
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}>
-            <View style={{flex:1, marginRight:40}}>
-                <Text style={{fontSize:20}}>Total Amount</Text>
-            </View>
-            <View style={{flex:1, alignItems:"flex-end"}}>
-                <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {this.state.total_amount}</Text>
-            </View>
-        </View>
 
+            
+            <FlatList
+                    data={this.state.products_list}
+                    keyExtractor={item => item._id}
+                    renderItem={({ item }) => 
+                            <Card3
+                                id={item._id}    productid={item.productid}    title={item.title} 
+                                sellingprice={item.sellingprice}
+                                imageurl={item.imageurl}
+                            />
+                    }
+                /> 
+            <View style={{height:20}}></View>
+            <View style={{flex:1, height:30, width:'100%', alignItems:'center'}}>
+                <View style={{flex:1, width:'95%', backgroundColor:"#D3D3D3"}}>
+                <View style={{ flex:1, alignItems:"center", justifyContent:"center"}}>
+                    <Text style={{fontSize:18, textAlign:'center'}}>Payment Summary</Text>
+                </View>
 
-        <View style={{marginTop:25, marginHorizontal:20 ,height:30, alignItems:"center", justifyContent:"center",  backgroundColor:"#D3D3D3"}}>
-            <Text style={{fontSize:18}}>Delivery Address</Text>
-        </View>
+                </View>
+            </View>
 
-        <View style={{flexDirection:"row", paddingHorizontal:35, marginTop:3}}> 
-            <Entypo name="location-pin" size={24} color="#76BA1B" />
-            <Text style={{fontSize:16}}>10 C Sikka Colony Sonepat Delhi Road 140021</Text>
-        </View>
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Order Value</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>₹ {this.state.order_value}</Text>
+                    </View>
+            </View>
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Discount</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>{this.state.discount}%</Text>
+                    </View>
+            </View>
+            <View style={{flex:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                    <View style={{flex:1, width:'80%', flexDirection:'row', justifyContent:'space-between'}}>
+                        <Text style={{fontSize:15}}>Delivery Fee</Text>
+                        <Text style={{fontSize:15, color:"#76BA1B"}}>0</Text>
+                    </View>
+            </View>
+            
 
-        <View style={{height:90}}></View>
+            <View style={{flex:1, height:1, width:'100%', marginTop:5, alignItems:'center'}}>
+                <View style={{flex:1, width:'85%', backgroundColor:"#D3D3D3"}}></View>
+            </View>
+            
+            <View style={{flex:1, width:'100%', marginTop:10, alignItems:'center'}}>
+                <View style={{flex:1, width:'85%', flexDirection:'row', justifyContent:'space-between'}}>
+                    <Text style={{fontSize:20}}>Total Amount</Text>
+                    <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {this.state.total_amount}</Text>
+                </View>
+            </View>
+
+            <View style={{height:20}}></View>
+            <View style={{flex:1, height:30, width:'100%', alignItems:'center'}}>
+                <View style={{flex:1, width:'95%', backgroundColor:"#D3D3D3"}}>
+                <View style={{ flex:1, alignItems:"center", justifyContent:"center"}}>
+                    <Text style={{fontSize:18, textAlign:'center'}}>Delivery Address</Text>
+                </View>
+
+                </View>
+            </View>
+
+            <View style={{flex:1, minHeight:20, width:'100%', marginTop:10, marginBottom:80, alignItems:'center'}}>
+                <View style={{flex:1,width:'85%', flexDirection:"row"}}> 
+                    <Entypo name="location-pin" size={24} color="#76BA1B" />
+                    <Text style={{fontSize:16}}>{this.state.user_details.address} {this.state.user_details.city}  {this.state.user_details.state} {this.state.user_details.pincode}</Text>
+                </View>
+                <View style={{flex:1, width:'85%', alignItems:'flex-end'}}>
+                <TouchableOpacity   onPress={() => this.props.navigation.navigate('MyAddress',this.state)} >
+                    <Text style={{color:'#76BA1B'}}>Change Address</Text>
+                </TouchableOpacity>
+                </View>
+            </View>
         </ScrollView>
         <ConfirmOrder    confirm={ () => this.confirmOrder(this.state.total_amount) }
         
@@ -204,5 +265,12 @@ export default class Completed extends Component {
 }
 
 const styles = StyleSheet.create({
-
+    image:{
+        flex: 1,
+        height: null, 
+        width: null, 
+        resizeMode: 'contain', 
+        borderWidth: 0.1, 
+        borderColor: '#fff'
+    }
 });

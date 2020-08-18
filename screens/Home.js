@@ -6,16 +6,16 @@ import Header_Search from "../components/header_search"
 import axios from 'axios';
 const width = Dimensions.get('screen').width
 
-const baseURL = 'https://api.dholpurshare.com/api/'
 
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            userId: '',
             category: [], 
             category_products: null,
-            isloading: false, 
             latest_products: [],
+            cart_list: []
 
          };
       }
@@ -29,16 +29,24 @@ export default class Home extends React.Component {
         console.log('\n\nHome\n')
         console.log('isLogIn ', isLogIn)
         console.log('mobile ', mobile)
-        console.log('token\n',token)
-        console.log('userId\n',userId)
+        console.log('token ',token)
+        console.log('userId ',userId)
         // console.log('isLogIn\n',isLogIn)
+        
+        //fetching Cart List
+        axios.get('https://server.dholpurshare.com/api/cart/'+ userId)
+        .then((res)=>{
+            this.setState({cart_list: res.data.data})
+        }).catch(err => {
+            console.log(err)
+        })
+        // AsyncStorage.setItem('cart_list_length', this.state.cart_list.length);
+
       }
 
     componentDidMount() {
 
         this.localstoragevariables()           // getting the localStorage variables
-
-        this.setState({isloading: true})
         
         // fetching all category 1) API
         axios.get('https://server.dholpurshare.com/api/category')
@@ -60,6 +68,9 @@ export default class Home extends React.Component {
             }).catch(err => {
                 console.log(err)
             })
+
+            console.log('\n\n'+this.state.cart_list.length)
+
 }
 
 render(){
@@ -67,17 +78,18 @@ render(){
         <View style={{flex:1, backgroundColor:"#fff"}}>
             <Header_Search  navigation={ () => this.props.navigation.openDrawer()}  
                             cartIcon = { () => this.props.navigation.navigate('MyCart')}
+                            cart_list_length = {this.state.cart_list.length}
             />
             <ScrollView>
                 <Swiper2 image1=""/>
-                <View style={{width:width, marginVertical:20, alignItems:'center', justifyContent:'center'}}>
+                <View style={{flex:1, marginVertical:20, justifyContent:'center'}}>
                     <FlatList
                         data={this.state.category}
                         keyExtractor={(item) => item._id}
                         renderItem={({ item }) => 
-                            <View style={{marginHorizontal:10, marginVertical:10}}>
+                            <View style={{flex:1, justifyContent:'space-around'}}>
                                 <SmallCategoryCards 
-                                        id={item._id} category={item.category} 
+                                        id={item._id} title={item.category} 
                                         imageurl={item.imageurl}
                                         onPress={() => this.props.navigation.navigate('Products',
                                                             {

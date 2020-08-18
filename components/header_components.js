@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TextInput, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, Text, View, Dimensions, AsyncStorage, BackHandler, Image } from 'react-native';
 import {AntDesign, MaterialCommunityIcons, FontAwesome5, MaterialIcons} from '@expo/vector-icons';
 import Constant from 'expo-constants';
 const { width } = Dimensions.get('window')
@@ -16,17 +16,13 @@ export const MyCartHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
-                flexDirection:"row",
-                marginTop:8
+                flex:1,
+                flexDirection:"row", 
+                justifyContent:'center',
+                alignItems:'center'
             }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
-                <View style={{flexDirection:"row", paddingLeft:73}}>
-                    <AntDesign name="shoppingcart" size={32} color="white"/>
-                    <Text style={{fontSize:22, paddingLeft:10, color:"white"}}>My Cart</Text>
-                </View>
-                
+                <AntDesign name="shoppingcart" size={32} color="white"/>
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}>  My Cart</Text>                
             </View>
         </View>
       );
@@ -45,17 +41,14 @@ export const MyOrdersHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
+                flex:1,
                 flexDirection:"row",
-                marginTop:8
+                alignItems:'center',
+                justifyContent:'center'
             }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
-                <View style={{flexDirection:"row", paddingLeft:73}}>
-                    <AntDesign name="filetext1" size={24} color="white" />
-                    <Text style={{fontSize:22, paddingLeft:10, color:"white"}}>My Orders</Text>
-                </View>
-                
+            
+                <AntDesign name="filetext1" size={24} color="white" />
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}>  My Orders</Text> 
             </View>
         </View>
       );
@@ -73,17 +66,13 @@ export const MyProfileHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
-                flexDirection:"row",
-                marginTop:8
+                flex:1,
+                flexDirection:"row", 
+                justifyContent:'center',
+                alignItems:'center'
             }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
-                <View style={{flexDirection:"row", paddingLeft:70}}>
-                    <FontAwesome5 name="user-alt" size={24} color="white" style={{marginTop:3}} />
-                    <Text style={{fontSize:22, paddingLeft:10, color:"white"}}>My Profile</Text>
-                </View>
-                
+                <FontAwesome5 name="user-alt" size={24} color="white" />
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}> My Profile</Text>                
             </View>
         </View>
       );
@@ -102,17 +91,13 @@ export const MyAddressHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
+                flex:1,
                 flexDirection:"row",
-                marginTop:8
+                justifyContent:'center',
+                alignItems:'center'
             }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
-                <View style={{flexDirection:"row", paddingLeft:55}}>
-                    <MaterialIcons name="location-on" size={24} color="#fff" style={{ marginTop:2}} />
-                    <Text style={{fontSize:22, paddingLeft:7, color:"white"}}>My Address</Text>
-                </View>
-                
+                <MaterialIcons name="location-on" size={24} color="#fff" />
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}>  My Address</Text>                
             </View>
         </View>
       );
@@ -130,17 +115,13 @@ export const OrderDetailsHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
+                flex:1,
                 flexDirection:"row",
-                marginTop:8
-            }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
-                <View style={{flexDirection:"row", paddingLeft:60}}>
-                    <MaterialCommunityIcons name="file-document-outline" size={22} color="white" style={{ marginTop:5}}/>
-                    <Text style={{fontSize:22, paddingLeft:3, color:"white"}}>Order Details</Text>
-                </View>
-                
+                alignItems:'center',
+                justifyContent:'center'
+            }}>  
+                <MaterialCommunityIcons name="file-document-outline" size={22} color="white" />
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}>  Order Details</Text>                
             </View>
         </View>
       );
@@ -159,19 +140,41 @@ export const CompletedHeader = (props) => {
             backgroundColor:"#76BA1B",            
         }}>
             <View style={{
-                flexDirection:"row",
-                marginTop:8
+                flex:1,
+                alignItems:'center'
             }}>
-                <TouchableOpacity onPress={props.goback}>
-                    <AntDesign name="left" size={30} color="white" style={{ marginLeft:15 }} />
-                </TouchableOpacity>
             </View>
         </View>
       );
 
 }
 
-export const DrawerHeader = () => {
+export const CategoriesHeader = (props) => {
+    return (
+        <View style={{
+            paddingTop:Constant.statusBarHeight,
+            top:0,
+            left:0,
+            right:0,
+            height:55 + Constant.statusBarHeight,
+            backgroundColor:"#76BA1B",            
+        }}>
+            <View style={{
+                flex:1,
+                flexDirection:"row",
+                alignItems:'center',
+                justifyContent:'center'
+            }}>  
+                <MaterialIcons name="grid-on" size={24} color="white" />
+                <Text style={{fontSize:22, color:"white", textAlign:'center'}}>  Categories</Text>                
+            </View>
+        </View>
+      );
+
+}
+
+export const DrawerHeader = (props) => {
+    
     return (
         <View style={{
             marginTop: -Constant.statusBarHeight,
@@ -182,14 +185,26 @@ export const DrawerHeader = () => {
             height:55 + Constant.statusBarHeight,
             backgroundColor:"#76BA1B",            
         }}>
-            <View style={{ flexDirection:"row" }}>
-                <View style={{height:46,width:46, borderRadius:23, marginLeft:15, backgroundColor:"#fff"}}></View>
-                <View style={{ marginLeft:15}}>
-                    <Text style={{fontSize:22, color:"#fff"}}>Srijan Singh</Text>
-                    <Text style={{fontSize:15, color:"#fff"}}>8979778966</Text>
+            <View style={{ flex:1 ,flexDirection:"row"}}>
+                <View style={{flex:0.10}}></View>
+                <View style={{flex:0.90}}>
+                    <View style={{flex:1, flexDirection:"row"}}>
+                        <View style={{flex:0.25}}>
+                            <View style={{height:46,width:46, borderRadius:23, backgroundColor:"#fff" }}>
+                            <Image style={{flex: 1, height: null,width: null, borderRadius:65}} source={require("./../assets/profile-pic.jpg")}/>
+                            </View>
+                        </View>
+                        <View style={{flex:0.75, }}>
+                            <TouchableOpacity   onPress={props.navigation} >
+                                <Text style={{fontSize:22, color:"#fff"}}>Welcome</Text>
+                                <Text style={{fontSize:15, color:"#fff"}}>{props.mobile}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
             </View>
         </View>
       );
 
 }
+

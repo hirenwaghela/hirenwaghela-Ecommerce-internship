@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TextInput, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Dimensions, ScrollView, Image } from 'react-native';
 import {AntDesign, FontAwesome, MaterialIcons, FontAwesome5, MaterialCommunityIcons} from '@expo/vector-icons';
 import  { Card2 } from "../components/card"
 import { MyAddressHeader } from "../components/header_components";
-import { UpdateAddress } from "../components/bottom_buttons"
+import { UpdateAddress } from "../components/bottom_buttons";
+import Modal from 'react-native-modal';
 const { width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 
 
 class FloatingLabelInput extends Component {
@@ -79,16 +81,21 @@ class FloatingLabelInput extends Component {
 
 
 export default class MyAddress extends Component {
-    state={
-        pincode: "",
-        building_name: "",
-        area_name: "",
-        city: "",
-        state: "",
-        name: "",
-        email: "",
-        mobile_no: ""
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalVisible: false,
+      pincode: "",
+      building_name: "",
+      area_name: "",
+      city: "",
+      state: "",
+      name: "",
+      email: "",
+      mobile_no: ""
+
+     };
+  }
 
     handlePincodeChange = (pincode) =>  this.setState({ pincode })
     handleBuildingNameChange  = (building_name) =>  this.setState({ building_name })
@@ -99,10 +106,66 @@ export default class MyAddress extends Component {
     handleEmailChange = (email) =>  this.setState({ email })
     handleMobileNoChange = (mobile_no) =>  this.setState({ mobile_no })
 
+    componentDidMount() {
+      // console.log(this.props.route.params.userId)
+      this.setState({
+        pincode: this.props.route.params.user_details.pincode,
+        building_name: this.props.route.params.user_details.address,
+        city: this.props.route.params.user_details.city,
+        state: this.props.route.params.user_details.state,
+        name: this.props.route.params.user_details.name,
+        email: this.props.route.params.user_details.email,
+        mobile_no: this.props.route.params.user_details.mobile
+      })
+    }
+
+    UpdateProfile = () => {
+      
+      fetch('https://dhol.herokuapp.com/api/user/' + this.props.route.params.userId, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: this.state.email,
+                name: this.state.name,
+                address: this.state.building_name + ' ' + this.state.area_name,
+                pincode: this.state.pincode,
+                city: this.state.city,
+                state: this.state.state
+            })
+          })
+            .then(res => {
+              this.setState({isModalVisible: true},
+                () => {
+                  setTimeout(() => {
+                    this.setState({isModalVisible: false})
+                    
+                  }, 1000);
+                  setTimeout(() => {
+                     this.props.navigation.goBack() 
+                  }, 1400)
+                    console.log('Updated successfully')
+                  
+                })
+            })
+            .catch(err => {
+              console.log(err);
+          });
+    }
+
     render() {
         return (
         <View style={styles.containerMain}>
-            <MyAddressHeader goback={ () => this.props.navigation.goBack()}/>
+            <MyAddressHeader/>
+            <Modal isVisible={this.state.isModalVisible}>
+              <View style={{height: height-550, width:width-100, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <View style={{height:70, width:70, marginBottom:10}}>
+                  <Image style={styles.image} source={require("../assets/tick_mark.png")} />
+                </View>
+                <Text style={{fontSize:20, textAlign:'center'}}>Updated Successfully!</Text>
+              </View>
+            </Modal>
             <ScrollView style={{paddingTop:40, paddingHorizontal:20, backgroundColor:"#fff"}}>
                 <View style={{flexDirection:'row', marginBottom:25}}>
                     <MaterialIcons name="location-on" size={18} color="#76BA1B" style={{ marginTop:-2}}/>
@@ -111,7 +174,7 @@ export default class MyAddress extends Component {
                 <View style={{marginBottom:40}}>
                     <FloatingLabelInput
                         keyboardType="email-address"
-                        label="Pincode"
+                        label={this.state.pincode==''?"Pincode":null}
                         value={this.state.pincode}
                         onChangeText={this.handlePincodeChange}
                     />
@@ -119,7 +182,7 @@ export default class MyAddress extends Component {
                 <View style={{marginBottom:40}}>
                     <FloatingLabelInput
                         keyboardType="email-address"
-                        label="House No. Building name"
+                        label={(this.props.route.params.user_details.address=='' && this.state.building_name=='')?"House No. Building name":null}
                         value={this.state.building_name}
                         onChangeText={this.handleBuildingNameChange}
                     />
@@ -127,7 +190,7 @@ export default class MyAddress extends Component {
                 <View style={{marginBottom:40}}>
                     <FloatingLabelInput
                         keyboardType="email-address"
-                        label="Road Name, Area Colony"
+                        label={this.state.area_name==''?"Road Name, Area Colony":null}
                         value={this.state.area_name}
                         onChangeText={this.handleAreaNameChange}
                     />
@@ -135,13 +198,13 @@ export default class MyAddress extends Component {
                 <View style={{flexDirection:'row', justifyContent:'space-between', marginLeft:20, marginBottom:40}}>
                     <FloatingLabelInputSmall
                         keyboardType="email-address"
-                        label="City"
+                        label={this.state.city==''?"City":null}
                         value={this.state.city}
                         onChangeText={this.handleCityNameChange}
                     />
                     <FloatingLabelInputSmall
                         keyboardType="email-address"
-                        label="State"
+                        label={this.state.state==''?"State":null}
                         value={this.state.state}
                         onChangeText={this.handleStateNameChange}
                     />
@@ -153,7 +216,7 @@ export default class MyAddress extends Component {
                 <View style={{marginBottom:40}}>
                     <FloatingLabelInput
                         keyboardType="email-address"
-                        label="Name"
+                        label={this.state.name==''?"Name":null}
                         value={this.state.name}
                         onChangeText={this.handleNameChange}
                     />
@@ -161,21 +224,20 @@ export default class MyAddress extends Component {
                 <View style={{marginBottom:40}}>
                     <FloatingLabelInput
                         keyboardType="email-address"
-                        label="Email"
+                        label={this.state.email==''?"Email":null}
                         value={this.state.email}
                         onChangeText={this.handleEmailChange}
                     />
                 </View>
                 <View style={{marginBottom:100}}>
                     <FloatingLabelInput
-                        keyboardType="email-address"
-                        label="Mobile Number"
+                        editable={false}
+                        label={this.state.mobile_no==''?"Mobile Number":null}
                         value={this.state.mobile_no}
-                        onChangeText={this.handleMobileNoChange}
                     />
                 </View>
             </ScrollView>
-            <UpdateAddress/>
+            <UpdateAddress  Update={ () => this.UpdateProfile()}/>
         </View>
         );
     }
@@ -185,4 +247,12 @@ const styles = StyleSheet.create({
   containerMain: {
     flex: 1,
   },
+  image:{
+    flex: 1,
+    height: null, 
+    width: null, 
+    resizeMode: 'contain', 
+    borderWidth: 0.1, 
+    borderColor: '#fff'
+}
 });

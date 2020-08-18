@@ -3,7 +3,8 @@ import { Text, View, StyleSheet, TextInput, Button, Alert, ActivityIndicator, As
          Dimensions, TouchableOpacity } from "react-native";
 import * as FirebaseRecaptcha from "expo-firebase-recaptcha";
 import * as firebase from "firebase";
-import { Input, Item } from 'native-base';
+import { Input, Label, Item } from 'native-base';
+import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 
 const { width } = Dimensions.get('window')
@@ -51,7 +52,7 @@ export default class PhoneAuthScreen extends React.Component{
     let isLogIn = await AsyncStorage.getItem('isLogIn')
     console.log('isLogIn ', isLogIn)
     if(isLogIn == 'true'){
-      this.props.navigation.navigate('Home')
+      this.props.navigation.navigate('DrawerApp')
     }
  }
 
@@ -78,7 +79,7 @@ export default class PhoneAuthScreen extends React.Component{
                 return res.json();
               })
               .then( resData => {
-                console.log(resData);
+                console.log('\nSignIn RESPONSE:\n',resData);
                 this.setState({
     
                   token: resData.token,
@@ -125,41 +126,49 @@ export default class PhoneAuthScreen extends React.Component{
   render(){
     //console.log(this.state)
     return (
-      <View style={{flex:1, alignItems:'center', justifyContent:'center'}}>
+      <LinearGradient colors={["#76BA1B", "#fff"]} 
+                            style={{flex:1, alignItems:"center",justifyContent:"center"}}>
+      <View style={{flex:1, alignItems:"center",justifyContent:"center"}}>
           <FirebaseRecaptcha.FirebaseRecaptchaVerifierModal
             ref={this.state.recaptchaVerifier}
             firebaseConfig={FIREBASE_CONFIG}
           />
             <View style={{height:110}}></View>
-            <View style={{height:140, width:140, borderRadius:70, elevation:5}}>
+            <View style={{height:140, width:140, borderRadius:70}}>
               <Image
                   style={styles.image}
-                  source={require("./../assets/logo.jpeg")}
+                  source={require("./../assets/logo3.png")}
               />
             </View>
             <View style={{alignItems:'center', marginTop:50}}>
-              <Text style={{fontSize:17, fontWeight:'bold'}}>Log In</Text>
+              <Text style={{fontSize:20, fontWeight:'bold', color:'#fff'}}>Log In</Text>
             </View>
-            <Item regular
+            <Item floatingLabel
                   style={{width:width-80, marginTop:15, marginBottom:8}}
             >
+              <Label>Phone Number</Label>
                 <Input  
-                    autoFocus={this.state.isConfigValid}
+                    autoFocus={false}
                     autoCompleteType="tel"
                     keyboardType="phone-pad"
-                    placeholder="Phone Number"
                     editable={!this.state.verificationId}
                     onChangeText={(phoneNumber) => this.setState({phoneNumber})}
                 />
             </Item>
 
-          <View style={{width:width-78, height:45, marginLeft:2 }}>
-            <Button
+          <View style={{width:width-200, height:45, borderRadius:20, backgroundColor:'#76BA1B', elevation:2 }}>
+          <TouchableOpacity
+              style={{flex:1, justifyContent:'center', alignItems:'center'}}
+              onPress={this.loginHandler}    
+          >
+            <Text style={{textAlign:'center', color:'#fff'}}>{`${this.state.verificationId ? "Resend" : "Send"} OTP`}</Text>
+          </TouchableOpacity>
+            {/* <Button
               title={`${this.state.verificationId ? "Resend" : "Send"} OTP`}
               disabled={!this.state.phoneNumber}
               color='#76BA1B'
               onPress={this.loginHandler}
-            />
+            /> */}
           </View>
 
           {this.state.verifyError && (
@@ -174,22 +183,65 @@ export default class PhoneAuthScreen extends React.Component{
             </Text>
           ) : undefined}
 
-          <Item regular
+          <Item floatingLabel
                 style={{width:width-80, marginTop:20, marginBottom:8
                 }}
           >
+            <Label>Enter OTP</Label>
             <Input 
               ref={this.state.verificationCodeTextInput}
               editable={!!this.state.verificationId}
-              placeholder="Enter OTP"
+              keyboardType="phone-pad"
               onChangeText={(verificationCode) =>
                 this.setState({verificationCode})
               }
             />
           </Item>
 
-          <View style={{width:width-78, height:45, marginLeft:2 }}>
-            <Button
+          <View style={{width:width-200, height:45, borderRadius:20, backgroundColor:'#76BA1B', elevation:2 }}>
+          <TouchableOpacity
+              style={{flex:1, justifyContent:'center', alignItems:'center'}}
+              // disabled={!this.state.verificationCode}
+              onPress={async () => {
+                try {
+                  this.setState({
+                    confirmError: undefined,
+                    confirmInProgress: true
+                  })
+                  const credential = firebase.auth.PhoneAuthProvider.credential(
+                    this.state.verificationId,
+                    this.state.verificationCode
+                  );
+                  const authResult = await firebase
+                    .auth() 
+                    .signInWithCredential(credential);
+                  this.setState({
+                    confirmInProgress: false,
+                    verificationId: '',
+                    verificationCode: ''
+                  })
+                  //this.state.verificationCodeTextInput.current?.clear();
+                  Alert.alert("Phone authentication successful!");
+                  console.log(this.state.phoneNumber)
+                  
+                  
+                  AsyncStorage.setItem('token', this.state.token);
+                  AsyncStorage.setItem('userId', this.state.userId);
+
+                  AsyncStorage.setItem('mobile', this.state.phoneNumber)  // assigning mobile no
+                  AsyncStorage.setItem('isLogIn', 'true')
+                  this.props.navigation.navigate('DrawerApp')
+                } catch (err) {
+                  this.setState({
+                    confirmError: err,
+                    confirmInProgress: false
+                  })
+                }
+              }}    
+            >
+              <Text style={{textAlign:'center', color:'#fff'}}>Verify OTP</Text>
+            </TouchableOpacity>
+            {/* <Button
               title="Verify OTP"
               disabled={!this.state.verificationCode}
               color='#76BA1B'
@@ -221,7 +273,7 @@ export default class PhoneAuthScreen extends React.Component{
 
                   AsyncStorage.setItem('mobile', this.state.phoneNumber)  // assigning mobile no
                   AsyncStorage.setItem('isLogIn', 'true')
-                  this.props.navigation.navigate('Home')
+                  this.props.navigation.navigate('DrawerApp')
                 } catch (err) {
                   this.setState({
                     confirmError: err,
@@ -229,7 +281,7 @@ export default class PhoneAuthScreen extends React.Component{
                   })
                 }
               }}    
-            />
+            /> */}
           </View>
           <TouchableOpacity   onPress={ () => this.props.navigation.navigate('SignUpOTP')} 
                                     style={{marginTop:20, flexDirection:'row'}}>
@@ -242,6 +294,7 @@ export default class PhoneAuthScreen extends React.Component{
           )} */}
           {this.state.confirmInProgress && <ActivityIndicator style={styles.loader} />}
         </View>
+        </LinearGradient>
       
     );
   }

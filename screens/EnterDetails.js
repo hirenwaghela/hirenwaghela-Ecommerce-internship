@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity , Dimensions, Alert, AsyncStorage } from 'react-native';
 import Constant from 'expo-constants';
 import { Input, Item } from 'native-base';
-import Storage from 'react-native-storage';
 const { width } = Dimensions.get('window');
-import axios from 'axios' ;
+
 
 export default class EnterDetails extends Component {
 
@@ -24,45 +23,45 @@ export default class EnterDetails extends Component {
       }
 
 
-      signUpHandler = () => {
+    //   signUpHandler = () => {
 
-        fetch('https://server.dholpurshare.com/api/signup', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                mobile: this.state.mobile,
-                email: this.state.email,
-                name: this.state.name,
-                address: this.state.address,
-                pincode: this.state.pincode,
-                city: this.state.city,
-                state: this.state.state
-            })
-          })
-            .then(res => {
-                console.log(JSON.stringify(res))
-                return res.json();
-            })
-            .then( resData => {
-                console.log(resData);
-                this.setState({
-                    token: resData.token,
-                    userId: resData.userId
-                    })
-            })
-            .then(async() =>{
-                AsyncStorage.setItem('isLogIn', 'true')
-                AsyncStorage.setItem('token', this.state.token) // assigning token
-                AsyncStorage.setItem('userId', this.state.userId) // assigning userId
-            })
-            .catch(err => {
-                console.log(err);
-            });
-        this.props.navigation.navigate('Home')        
+    //     fetch('https://server.dholpurshare.com/api/signup', {
+    //         method: 'PUT',
+    //         headers: {
+    //           'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({
+    //             mobile: this.state.mobile,
+    //             email: this.state.email,
+    //             name: this.state.name,
+    //             address: this.state.address,
+    //             pincode: this.state.pincode,
+    //             city: this.state.city,
+    //             state: this.state.state
+    //         })
+    //       })
+    //         .then(res => {
+    //             console.log(JSON.stringify(res))
+    //             return res.json();
+    //         })
+    //         .then( resData => {
+    //             console.log(resData);
+    //             this.setState({
+    //                 token: resData.token,
+    //                 userId: resData.userId
+    //                 })
+    //         })
+    //         .then(async() =>{
+    //             AsyncStorage.setItem('isLogIn', 'true')
+    //             AsyncStorage.setItem('token', this.state.token) // assigning token
+    //             AsyncStorage.setItem('userId', this.state.userId) // assigning userId
+    //         })
+    //         .catch(err => {
+    //             console.log(err);
+    //         });
+    //     this.props.navigation.navigate('Home')        
     
-      }
+    //   }
 
     submit = () => {
 
@@ -86,7 +85,7 @@ export default class EnterDetails extends Component {
                 return res.json();
             })
             .then( resData => {
-                console.log(resData);
+                console.log('\nEnter Details submit:\n',resData);
                 this.setState({
                     token: resData.token,
                     userId: resData.userId
@@ -96,11 +95,18 @@ export default class EnterDetails extends Component {
                 AsyncStorage.setItem('isLogIn', 'true')
                 AsyncStorage.setItem('token', this.state.token) // assigning token
                 AsyncStorage.setItem('userId', this.state.userId) // assigning userId
+                AsyncStorage.setItem('userId', this.state.mobile) 
+                AsyncStorage.setItem('userId', this.state.email) 
+                AsyncStorage.setItem('userId', this.state.name) 
+                AsyncStorage.setItem('userId', this.state.address)
+                AsyncStorage.setItem('userId', this.state.city)
+                AsyncStorage.setItem('userId', this.state.pincode) 
+                AsyncStorage.setItem('userId', this.state.state)   
             })
             .catch(err => {
                 console.log(err);
             });
-        this.props.navigation.navigate('Home')
+        this.props.navigation.navigate('DrawerApp')
         
         // axios.put('https://server.dholpurshare.com/api/signup', {
         //     mobile: this.state.mobile,
@@ -133,11 +139,11 @@ export default class EnterDetails extends Component {
         try {
             let mobile = await AsyncStorage.getItem('mobile')
             this.setState({mobile})
-            console.log('EnterDetails fetch ', mobile)
             
         } catch (error) {
             console.log(error)
         }
+        console.log('EnterDetails fetch ', this.state.mobile)
     }
 
 
