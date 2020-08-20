@@ -1,58 +1,60 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList, AsyncStorage, ActivityIndicator } from 'react-native';
 import  { SmallCategoryCards } from "../components/card"
 import { CategoriesHeader } from './../components/header_components';
 import Constant from 'expo-constants';
 import axios from 'axios';
+import PTRView from 'react-native-pull-to-refresh';
+import Modal from 'react-native-modal';
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
 
 
-export default class Home extends React.Component {
+export default class Categories extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             category: [], 
-            isloading: false, 
+            isModalVisible: false,
+            Error: null 
 
          };
-      }
-
-      localstoragevariables = async() => {
-        let isLogIn = await AsyncStorage.getItem('isLogIn')
-        let mobile = await AsyncStorage.getItem('mobile')
-        let token = await AsyncStorage.getItem('token')
-        let userId = await AsyncStorage.getItem('userId')
-        // let isLogIn = await AsyncStorage.getItem('isLogIn')
-        console.log('Categories')
-        console.log('isLogIn ', isLogIn)
-        console.log('mobile ', mobile)
-        console.log('token ',token)
-        console.log('userId ',userId)
-        // console.log('isLogIn\n',isLogIn)
-      }
+        }
 
     componentDidMount() {
+        // fetching all category 1) API
+        this.setState({isModalVisible:true})
+        axios.get('https://server.dholpurshare.com/api/category')
+            .then((res)=>{
+                // console.log('\n\nCategory');
+                // console.log(res.data.data)
+                this.setState({isModalVisible:false})
+                this.setState({category: res.data.data})
+            }).catch(err => {
+                console.log(err)
+                this.setState({isModalVisible:false})
+                this.setState({Error: err})
+            })
+}
 
-        this.localstoragevariables()           // getting the localStorage variables
-
-        this.setState({isloading: true})
+    _refresh = () => {
         
         // fetching all category 1) API
         axios.get('https://server.dholpurshare.com/api/category')
             .then((res)=>{
-                console.log('\n\nCategory');
-                console.log(res.data.data)
+                // console.log('\n\nCategory');
+                // console.log(res.data.data)
                 this.setState({category: res.data.data})
             }).catch(err => {
                 console.log(err)
+                this.setState({Error: err})
             })
         
-}
+    }
 
 render(){
-    var toggle = this.state.category !== [] 
+    var toggle = this.state.category.length > 0
             ?
             (<View style={{flex:1, marginVertical:20, justifyContent:'center'}}>
             <FlatList
@@ -82,10 +84,32 @@ render(){
         )
     return (
         <View style={{flex:1, backgroundColor:"#fff"}}>
-            <CategoriesHeader/>
-            <ScrollView>
-                {toggle}                
-            </ScrollView>
+                <CategoriesHeader/>
+                    
+                    {/* Showing Loader */}
+                    <Modal isVisible={this.state.isModalVisible}>
+                        <View style={{height: height-680, width:width-270, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                            <View style={{alignItems:'center', justifyContent:'center'}}>
+                            <ActivityIndicator size='large' color='#76BA1B'/>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    {/* Showing Error */}
+                    <Modal isVisible={this.state.Error != null}>
+                    <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                        <View style={{alignItems:'center', justifyContent:'center'}}>
+                        <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                        <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                        </View>
+                    </View>
+                    </Modal>
+                    
+                <ScrollView>
+                    <PTRView onRefresh={this._refresh} >
+                        {toggle}
+                    </PTRView>                
+                </ScrollView>
         </View>
       );
   }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, Image, Dimensions, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Image, Dimensions, AsyncStorage, ActivityIndicator } from 'react-native';
 import {AntDesign, FontAwesome, MaterialIcons, FontAwesome5, MaterialCommunityIcons} from '@expo/vector-icons';
 import  { Card2 } from "../components/card"
 import { MyProfileHeader } from "../components/header_components";
@@ -7,7 +7,9 @@ import { Bottom1 } from "../components/bottom_buttons";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import axios from 'axios';
 import PTRView from 'react-native-pull-to-refresh';
-const { width } = Dimensions.get('window')
+import Modal from 'react-native-modal';
+const width = Dimensions.get('screen').width
+const height = Dimensions.get('screen').height
 
 
 export default class MyProfile extends Component {
@@ -15,6 +17,8 @@ export default class MyProfile extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isModalVisible: false,
+            Error: null,
             user_details: [],
             userId:'',
             pincode: "",
@@ -28,6 +32,10 @@ export default class MyProfile extends Component {
       }
 
     componentDidMount() {
+        this.UserId()
+    }
+
+    _refresh = () => {
         this.UserId()
     }
 
@@ -46,10 +54,11 @@ export default class MyProfile extends Component {
         
         // fetching User Details  API
 
+        this.setState({isModalVisible: true})
         axios.get('https://server.dholpurshare.com/api/user/' + this.state.userId)
         .then((res)=>{
-            console.log('\n\nUser details');
-            console.log(res.data.data)
+            // console.log('\n\nUser details');
+            // console.log(res.data.data)
             this.setState({user_details: res.data.data})
             this.setState({
                 pincode: res.data.data.pincode,
@@ -59,8 +68,11 @@ export default class MyProfile extends Component {
                 name: res.data.data.name,
                 email: res.data.data.email,
             })
+            this.setState({isModalVisible: false})
         }).catch(err => {
             console.log(err)
+            this.setState({isModalVisible: false})
+            this.setState({Error: err})
         })
 
     }
@@ -73,6 +85,7 @@ export default class MyProfile extends Component {
         }
         catch(err){
             console.log(err)
+            this.setState({Error: err})
         }
         this.fetchDetails()
       }
@@ -81,13 +94,14 @@ export default class MyProfile extends Component {
         console.log('\n\nLogout')
         await AsyncStorage.removeItem('isLogIn')
         await AsyncStorage.removeItem('mobile')
+        await AsyncStorage.removeItem('name')
         await AsyncStorage.removeItem('token')
         await AsyncStorage.removeItem('userId')
 
-        let isLogIn = await AsyncStorage.getItem('isLogIn')
-        let mobile = await AsyncStorage.getItem('mobile')
-        let token = await AsyncStorage.getItem('token')
-        let userId = await AsyncStorage.getItem('userId')
+        // let isLogIn = await AsyncStorage.getItem('isLogIn')
+        // let mobile = await AsyncStorage.getItem('mobile')
+        // let token = await AsyncStorage.getItem('token')
+        // let userId = await AsyncStorage.getItem('userId')
 
         // console.log('Outside app from MyProfile\n')
         // console.log('isLogIn ', isLogIn)
@@ -105,9 +119,30 @@ export default class MyProfile extends Component {
 
     return (
       <View style={styles.containerMain}>
+          {/* <PTRView onRefresh={this._refresh} > */}
         <MyProfileHeader/>
+
+            {/* Showing Loader */}
+            <Modal isVisible={this.state.isModalVisible}>
+                <View style={{height: height-680, width:width-270, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                    <View style={{alignItems:'center', justifyContent:'center'}}>
+                    <ActivityIndicator size='large' color='#76BA1B'/>
+                    </View>
+                </View>
+            </Modal>
+                
+            {/* Showing Error */}
+            <Modal isVisible={this.state.Error != null}>
+                <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                    <View style={{alignItems:'center', justifyContent:'center'}}>
+                    <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                    <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                    </View>
+                </View>
+            </Modal>
+            
         <View style={{flex:0.35}}>
-            <View style={{flex:1, backgroundColor:"#76BA1B"}}>
+            <View style={{flex:1, height:'100%', backgroundColor:"#76BA1B"}}>
                 <View style={{height:150, alignItems:'center', justifyContent:'center'}}>
                     <View style={{height:100, width:100, borderRadius:55, backgroundColor:'#fff', borderColor:'#fff',borderWidth:4}}>
                         <Image style={{flex: 1, height: null,width: null, borderRadius:65}} source={require("./../assets/profile-pic.jpg")} />
@@ -142,7 +177,7 @@ export default class MyProfile extends Component {
             </View>
         </View>    
 
-        <View style={{flex:0.65, width:'95%',alignSelf:'center', marginVertical:10, elevation:3}}>
+        <View style={{flex:0.65, height:'100%', width:'95%', alignSelf:'center', marginVertical:10, elevation:3}}>
             <View style={{flex:1, minHeight:30}}>
                 <View style={{flex:0.28, backgroundColor:'#fff', marginBottom:2, elevation:3}}>
                     <View style={{flex:0.1}}></View>
@@ -256,6 +291,7 @@ export default class MyProfile extends Component {
                 
             </View>
         </View>
+        {/* </PTRView> */}
       </View>
     );
   }

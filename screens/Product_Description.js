@@ -1,38 +1,48 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, Dimensions, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
 import {AntDesign, MaterialCommunityIcons, FontAwesome5, MaterialIcons} from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constant from 'expo-constants';
 import { AddToCart } from "../components/bottom_buttons";
 import axios from 'axios';
+import PTRView from 'react-native-pull-to-refresh';
+import Modal from 'react-native-modal';
+const { width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 
 
 export default class Product_Description extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isloading: false,
+            isModalVisible: false,
             product_details: [],
+            quantity: 1,
             userId:'',
-            isloading: false
+            Error: null
 
          };
       }
 
       componentDidMount() {
+        this._refresh()
+      }
 
-        // fetching userId
+
+      _refresh = () => {
+          // fetching userId
         this.UserId()
-
         // fetching all product details 4) API
         axios.get('https://server.dholpurshare.com/api/product/' + this.props.route.params.category_products_id)
         .then((res)=>{
-            console.log('\n\nProduct details');
-            console.log(res.data.data)
+            // console.log('\n\nProduct details');
+            // console.log(res.data.data)
             this.setState({product_details: res.data.data})
         }).catch(err => {
             console.log(err)
+            this.setState({Error: err})
         })
-
       }
 
       UserId = async() => {
@@ -43,6 +53,7 @@ export default class Product_Description extends Component {
         }
         catch(err){
             console.log(err)
+            this.setState({Error: err})
         }
       }
 
@@ -50,27 +61,33 @@ export default class Product_Description extends Component {
 
         // Adding Product to Cart 5) API
 
-        console.log('Product Added')
-        console.log('userId: ', userId)
-        console.log('productId: ', productId)
-        this.setState({isloading:true})
+        // console.log('Product Added')
+        // console.log('userId: ', userId)
+        // console.log('productId: ', productId)
+        this.setState({isModalVisible:true})
         axios.post('https://server.dholpurshare.com/api/cart', {
             userid: userId ,
-	        productid: productId
+            productid: productId ,
+            quantity: this.state.quantity
           })
           .then(response => {
-            console.log(response);
+//            console.log(response);
             setTimeout(() => {
-                this.setState({isloading:false})
-                
+                this.setState({isModalVisible:false})   
             }, 1000);
           })
+          .catch(err => {
+            this.setState({isModalVisible:false})
+            console.log(err);
+            this.setState({Error:err})
+        });
           
       }
 
   render() {
     return (
       <View style={styles.containerMain}>
+        
         <View style={{
             paddingTop:Constant.statusBarHeight,
             top:0,
@@ -95,13 +112,33 @@ export default class Product_Description extends Component {
 
             </View>
         </View>
+            
+            {/* Add Modal */}
+            <Modal isVisible={this.state.isModalVisible}>
+              <View style={{height: height-600, width:width-150, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <ActivityIndicator size='large' color='#76BA1B'/>
+                <Text style={{fontSize:20, textAlign:'center', marginTop:5}}>Adding to cart . . .</Text>
+              </View>
+            </Modal>
+
+            {/* Showing Error */}
+            <Modal isVisible={this.state.Error != null}>
+              <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <View style={{alignItems:'center', justifyContent:'center'}}>
+                  <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                  <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                </View>
+              </View>
+            </Modal>
+
         <ScrollView style={{flex:1, backgroundColor:'#fff'}}>
-            {this.state.isloading ?
+        <PTRView onRefresh={this._refresh} >
+            {/* {this.state.isloading ?
                 <View style={{height:32, alignItems:'center', justifyContent:'center', backgroundColor:'#fff', elevation:3}}>
                     <Text style={{fontSize:18, color:'#76BA1B'}}>Adding to cart . . .</Text>
                 </View>
             :null
-            }
+            } */}
             <View style={{flex:1, height:230, backgroundColor:"#fff", elevation:3, alignItems:'center', justifyContent:'center'}}>
                 <View style={{width:150, height:200}}>
                     <Image
@@ -110,7 +147,7 @@ export default class Product_Description extends Component {
                     />
                     </View>
             </View>
-            <View style={{flex:1, minHeight:100, backgroundColor:"#fff"}}>
+            <View style={{flex:1, minHeight:200, backgroundColor:"#fff"}}>
                 <View style={{flex:0.2, marginTop:10}}>
                     <View style={{flex:1, flexDirection:'row', alignItems:'center'}}>
                         <View style={{flex:0.05}}></View>
@@ -125,10 +162,10 @@ export default class Product_Description extends Component {
                                 <View style={{flex:0.2}}><Text style={{fontSize:20, color:"#76BA1B"}}>₹ {this.state.product_details.sellingprice}</Text></View>
                                 <View style={{flex:0.8}}>
                                     <View style={{flex:1}}>
-                                        <View style={{flex:0.5, alignItems:'flex-end', flexDirection:'row'}}>
+                                        <View style={{flex:0.5, alignItems:'center', flexDirection:'row'}}>
                                             <Text style={{fontSize:12,}}>MRP </Text>
                                             <Text style={{fontSize:12, textDecorationLine:'line-through'}}>{this.state.product_details.costprice} </Text>
-                                            <Text style={{fontSize:14, color:'red'}}>  ₹ {this.state.product_details.discount * 100}  Off </Text>
+                                            <Text style={{fontSize:14, color:'red'}}>  ₹ {this.state.product_details.costprice-this.state.product_details.sellingprice}  Off </Text>
                                         </View>
                                     </View>
                                 </View>
@@ -138,16 +175,40 @@ export default class Product_Description extends Component {
                     </View>
                 </View>                
                
-                {/* <View style={{flex:0.2}}>
+                <View style={{flex:0.2}}>
                     <View style={{flex:1, flexDirection:'row'}}>
                         <View style={{flex:0.05}}></View>
-                        <View style={{flex:0.95}}>
-                            <View style={{ height:20, width:40, alignItems:"center", borderRadius:10, elevation:5, backgroundColor:'#fff'}}>
-                                <Text style={{ fontSize:12 }}>Qty-1</Text>
+                        <View style={{flex:0.95, flexDirection:'row'}}>
+                            {this.state.quantity < 2
+                                ?
+                                (
+                                    <TouchableOpacity activeOpacity={0.8}
+                                                style={{height:'100%', width:40, alignItems:"center", justifyContent:'center', borderRadius:3, elevation:5, backgroundColor:'#D3D3D3'}}>
+                                        <AntDesign name="minus" size={24} color="black" />
+                                    </TouchableOpacity>
+                                )
+                                :
+                                (
+                                    <TouchableOpacity   activeOpacity={0.8}   
+                                                        onPress={()=>this.setState({quantity: this.state.quantity - 1})}
+                                                style={{height:'100%', width:40, alignItems:"center", justifyContent:'center', borderRadius:3, elevation:5, backgroundColor:'#fff'}}>
+                                        <AntDesign name="minus" size={24} color="black" />
+                                    </TouchableOpacity>
+                                )
+                            }
+                            
+                            <View 
+                                style={{height:'100%', width:40, justifyContent:'center', alignItems:'center', backgroundColor:'#fff', borderColor:'#D3D3D3', borderRightWidth:1, borderLeftWidth:1, elevation:5}}>
+                                    <Text style={{fontSize:17, textAlign:'center'}}>{this.state.quantity}</Text>
                             </View>
+                            <TouchableOpacity   activeOpacity={0.8}
+                                                onPress={()=>this.setState({quantity: this.state.quantity + 1})} 
+                                                style={{height:'100%', width:40, alignItems:"center", justifyContent:'center', borderRadius:3, elevation:5, backgroundColor:'#fff'}}>
+                                <AntDesign name="plus" size={24} color="black" />
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </View> */}
+                </View>
 
                 <View style={{flex:0.2}}>
                     <View style={{flex:1}}>
@@ -165,12 +226,12 @@ export default class Product_Description extends Component {
                             </View> */}
                         {/* </View> */}
                         <View style={{flex:1}}>
-                            <View style={{flex:1, flexDirection:'row'}}>
+                            <View style={{flex:1, flexDirection:'row', alignItems:'flex-end'}}>
                                 <View style={{flex:0.05}}></View>
                                 <View style={{flex:0.9}}>
                                     <View style={{ flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
                                         <Text style={{fontSize:20}}>You Pay</Text>
-                                        <Text style={{fontSize:20}}>₹ {this.state.product_details.sellingprice}</Text>
+                                        <Text style={{fontSize:20}}>₹ {parseInt(this.state.product_details.sellingprice,10) * this.state.quantity}</Text>
                                     </View>
                                 </View>
                                 <View style={{flex:0.05}}></View>
@@ -192,9 +253,10 @@ export default class Product_Description extends Component {
                 </View>
                 <View style={{flex:0.05}}></View>
             </View>
-            
+            </PTRView>
         </ScrollView>
         <AddToCart  addProduct={ () => this.addTocart(this.state.userId, this.state.product_details._id)} />        
+        
       </View>
     );
   }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TextInput, Dimensions, ScrollView, Image } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Dimensions, ScrollView, Image, ActivityIndicator } from 'react-native';
 import {AntDesign, FontAwesome, MaterialIcons, FontAwesome5, MaterialCommunityIcons} from '@expo/vector-icons';
 import  { Card2 } from "../components/card"
 import { MyAddressHeader } from "../components/header_components";
@@ -84,6 +84,7 @@ export default class MyAddress extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      Error: null,
       isModalVisible: false,
       pincode: "",
       building_name: "",
@@ -120,7 +121,8 @@ export default class MyAddress extends Component {
     }
 
     UpdateProfile = () => {
-      
+
+      this.setState({isModalVisible: true})
       fetch('https://dhol.herokuapp.com/api/user/' + this.props.route.params.userId, {
             method: 'PUT',
             headers: {
@@ -136,8 +138,6 @@ export default class MyAddress extends Component {
             })
           })
             .then(res => {
-              this.setState({isModalVisible: true},
-                () => {
                   setTimeout(() => {
                     this.setState({isModalVisible: false})
                     
@@ -147,10 +147,11 @@ export default class MyAddress extends Component {
                   }, 1400)
                     console.log('Updated successfully')
                   
-                })
             })
             .catch(err => {
               console.log(err);
+              this.setState({isModalVisible: false})
+              this.setState({Error: err})
           });
     }
 
@@ -158,6 +159,8 @@ export default class MyAddress extends Component {
         return (
         <View style={styles.containerMain}>
             <MyAddressHeader/>
+            
+            {/* Updated Modal */}
             <Modal isVisible={this.state.isModalVisible}>
               <View style={{height: height-550, width:width-100, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
                 <View style={{height:70, width:70, marginBottom:10}}>
@@ -166,6 +169,17 @@ export default class MyAddress extends Component {
                 <Text style={{fontSize:20, textAlign:'center'}}>Updated Successfully!</Text>
               </View>
             </Modal>
+
+            {/* Showing Error */}
+            <Modal isVisible={this.state.Error != null}>
+              <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <View style={{alignItems:'center', justifyContent:'center'}}>
+                  <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                  <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                </View>
+              </View>
+            </Modal>
+            
             <ScrollView style={{paddingTop:40, paddingHorizontal:20, backgroundColor:"#fff"}}>
                 <View style={{flexDirection:'row', marginBottom:25}}>
                     <MaterialIcons name="location-on" size={18} color="#76BA1B" style={{ marginTop:-2}}/>

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, FlatList, AsyncStorage, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, FlatList, AsyncStorage, Dimensions, ActivityIndicator } from 'react-native';
 import  { Card2 } from "../components/card"
 import { MyCartHeader } from "../components/header_components";
 import { Bottom1, Bottom2 } from "../components/bottom_buttons";
 import axios from 'axios';
-const height = Dimensions.get('screen').height;
 import Constant from 'expo-constants';
+import Modal from 'react-native-modal';
+const { width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 
 export default class MyCart extends Component {
 
@@ -15,6 +17,7 @@ export default class MyCart extends Component {
         userId: '',
         cart_list: [],
         refreshing: false, 
+        Error: null
 
      };
   }
@@ -31,11 +34,13 @@ export default class MyCart extends Component {
         axios.get('https://server.dholpurshare.com/api/cart/'+ userId)
         .then((res)=>{
             // console.log('\n\nCart List:');
-            // console.log(res.data.data)
+            console.log(res.data.data)
             this.setState({cart_list: res.data.data})
             this.setState({refreshing:false})
         }).catch(err => {
             console.log(err)
+            this.setState({refreshing: false})
+            this.setState({Error: err})
         })
         // AsyncStorage.setItem('cart_list_length', this.state.cart_list.length);
 
@@ -93,7 +98,7 @@ export default class MyCart extends Component {
                   <Card2 
                         id={item._id}    productid={item.productid}    title={item.title} 
                         costprice={item.costprice}   sellingprice={item.sellingprice}
-                        imageurl={item.imageurl}
+                        imageurl={item.imageurl}  quantity={item.quantity}
                         Remove={() => this.removeItem(item._id)}
                   />
                 }
@@ -109,6 +114,17 @@ export default class MyCart extends Component {
     return (
       <View style={styles.containerMain}>
         <MyCartHeader goback={ () => this.props.navigation.goBack()}/>
+        
+          {/* Showing Error */}
+          <Modal isVisible={this.state.Error != null}>
+            <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <View style={{alignItems:'center', justifyContent:'center'}}>
+                <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                </View>
+            </View>
+            </Modal>
+
         <ScrollView>
               {toggle}
         </ScrollView>        

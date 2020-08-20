@@ -5,8 +5,9 @@ import * as FirebaseRecaptcha from "expo-firebase-recaptcha";
 import * as firebase from "firebase";
 import { Input, Label, Item } from 'native-base';
 import { LinearGradient } from 'expo-linear-gradient';
-
-const { width } = Dimensions.get('window')
+import Modal from 'react-native-modal';
+const width = Dimensions.get('screen').width
+const height = Dimensions.get('screen').height
 
 // PROVIDE VALID FIREBASE CONFIG HERE
 // https://firebase.google.com/docs/web/setup

@@ -196,7 +196,7 @@ export const DrawerHeader = (props) => {
                         </View>
                         <View style={{flex:0.75, }}>
                             <TouchableOpacity   onPress={props.navigation} >
-                                <Text style={{fontSize:22, color:"#fff"}}>Welcome</Text>
+                                <Text style={{fontSize:22, color:"#fff"}}>{props.name}</Text>
                                 <Text style={{fontSize:15, color:"#fff"}}>{props.mobile}</Text>
                             </TouchableOpacity>
                         </View>

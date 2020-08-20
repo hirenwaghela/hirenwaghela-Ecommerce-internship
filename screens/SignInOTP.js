@@ -5,9 +5,9 @@ import * as FirebaseRecaptcha from "expo-firebase-recaptcha";
 import * as firebase from "firebase";
 import { Input, Label, Item } from 'native-base';
 import { LinearGradient } from 'expo-linear-gradient';
-import axios from 'axios';
-
-const { width } = Dimensions.get('window')
+import Modal from 'react-native-modal';
+const width = Dimensions.get('screen').width
+const height = Dimensions.get('screen').height
 
 // PROVIDE VALID FIREBASE CONFIG HERE
 // https://firebase.google.com/docs/web/setup
@@ -33,11 +33,13 @@ try {
 export default class PhoneAuthScreen extends React.Component{
 
   state = {
+    isModalVisible: false,
     recaptchaVerifier: {current:null},
     verificationCodeTextInput: {current:null},
     phoneNumber: '',
     token: '',
     userId: '',
+    name: '',
     verificationId: '',
     verifyError: false,
     verifyInProgress: false,
@@ -83,7 +85,8 @@ export default class PhoneAuthScreen extends React.Component{
                 this.setState({
     
                   token: resData.token,
-                  userId: resData.userId
+                  userId: resData.userId,
+                  name: resData.name
                 })
               })
               .then(async()=>{
@@ -128,6 +131,16 @@ export default class PhoneAuthScreen extends React.Component{
     return (
       <LinearGradient colors={["#76BA1B", "#fff"]} 
                             style={{flex:1, alignItems:"center",justifyContent:"center"}}>
+      
+          {/* Show Modal */}
+          <Modal isVisible={this.state.Error != null}>
+              <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                <View style={{alignItems:'center', justifyContent:'center'}}>
+                  <Text style={{fontSize:17, textAlign:'center'}}>Welcome!!</Text>
+                </View>
+              </View>
+           </Modal>
+      
       <View style={{flex:1, alignItems:"center",justifyContent:"center"}}>
           <FirebaseRecaptcha.FirebaseRecaptchaVerifierModal
             ref={this.state.recaptchaVerifier}
@@ -221,13 +234,19 @@ export default class PhoneAuthScreen extends React.Component{
                     verificationCode: ''
                   })
                   //this.state.verificationCodeTextInput.current?.clear();
-                  Alert.alert("Phone authentication successful!");
+                  
+                  //Alert.alert("Phone authentication successful!");
+                  this.setState({isModalVisible: true})
+                  setTimeout(() => {
+                    this.setState({isModalVisible: false})
+                    
+                  }, 1000);
                   console.log(this.state.phoneNumber)
                   
                   
                   AsyncStorage.setItem('token', this.state.token);
                   AsyncStorage.setItem('userId', this.state.userId);
-
+                  AsyncStorage.setItem('name', this.state.name);
                   AsyncStorage.setItem('mobile', this.state.phoneNumber)  // assigning mobile no
                   AsyncStorage.setItem('isLogIn', 'true')
                   this.props.navigation.navigate('DrawerApp')

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, Dimensions, AsyncStorage, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Dimensions, AsyncStorage, BackHandler, ActivityIndicator } from 'react-native';
 import { CompletedHeader } from "../components/header_components";
 import { Fontisto } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-const width = Dimensions.get('screen').width
+import Modal from 'react-native-modal';
+const { width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 
 export default class Completed extends Component {
 
@@ -13,7 +15,8 @@ export default class Completed extends Component {
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
     this.state = {
         userId: '',
-        referenceId: ''
+        referenceId: '',
+        Error: null
      };
   }
 
@@ -32,15 +35,9 @@ export default class Completed extends Component {
     })
     .catch(err => {
         console.log(err)
+        this.setState({Error: err})
       })
-    // axios.delete('https://server.dholpurshare.com/api/cart/'+ this.state.userId)
-    //       .then(response => {
-    //           console.log(response);
-    //           console.log('Completed --> Order deleted')
-    //       })
-    //       .catch(err => {
-    //         console.log(err)
-    //     })
+    
   }
   
 
@@ -78,7 +75,18 @@ export default class Completed extends Component {
   render() {
     return (
       <View style={{flex:1}}>
-        <CompletedHeader goback={ () => this.props.navigation.navigate('Home')}/>    
+        <CompletedHeader goback={ () => this.props.navigation.navigate('Home')}/>  
+
+          {/* Showing Error */}
+          <Modal isVisible={this.state.Error != null}>
+          <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+              <View style={{alignItems:'center', justifyContent:'center'}}>
+              <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+              <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+              </View>
+          </View>
+          </Modal>
+
         <View style={{flex:0.5, justifyContent:'center', alignItems:"center"}}>
             <View style={{ height:width-130, width:width-130, borderRadius:width/2 - 65, borderWidth:5, borderColor:"#76BA1B", alignItems:"center", justifyContent:"center"}}>
                 <Fontisto name="shopping-basket-add" size={100} color="#76BA1B" />

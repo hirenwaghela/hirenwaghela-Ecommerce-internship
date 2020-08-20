@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ScrollView, Dimensions, Alert, FlatList, AsyncStorage, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Dimensions, Alert, FlatList, AsyncStorage, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { OrderDetailsHeader } from "../components/header_components";
 import { ConfirmOrder } from "../components/bottom_buttons";
 import { Cart3, Card3 } from "../components/card";
 import {Entypo, Octicons} from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import PTRView from 'react-native-pull-to-refresh';
 import axios from 'axios';
 var moment = require('moment');
 
@@ -16,7 +17,9 @@ export default class OrderDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isloading: false,
             isModalVisible: false,
+            Error: null,
             products_list: [], 
             total_amount: 0,
             referenceId: null,
@@ -31,13 +34,17 @@ export default class OrderDetails extends Component {
         
         // fetching User Details  API
 
+        this.setState({isloading: true})
         axios.get('https://server.dholpurshare.com/api/user/' + this.state.userId)
         .then((res)=>{
             // console.log('\n\nUser details');
             // console.log(res.data.data)
             this.setState({user_details: res.data.data})
+            this.setState({isloading: false})
         }).catch(err => {
             console.log(err)
+            this.setState({isloading: false})
+            this.setState({Error: err})
         })
     }
 
@@ -49,6 +56,7 @@ export default class OrderDetails extends Component {
         }
         catch(err){
             console.log(err)
+            this.setState({Error: err})
         }
         this.fetchDetails()
     }
@@ -64,6 +72,8 @@ export default class OrderDetails extends Component {
 
         console.log(this.state.userId)
         try {
+
+            this.setState({isModalVisible: true})
             axios.post('https://server.dholpurshare.com/api/order', {
                 userid: this.state.userId ,
                 referenceid: this.state.referenceId,
@@ -71,21 +81,19 @@ export default class OrderDetails extends Component {
             })
             .then(response => {
                 console.log(response);
-                this.setState({isModalVisible: true},
-                    () => {
-                      setTimeout(() => {
-                        this.setState({isModalVisible: false})
-                        
-                      }, 1000);
-                      setTimeout(() => {
-                        this.props.navigation.navigate('Completed', {referenceId:this.state.referenceId})
-                      }, 1400)
-                      
-                    })
+                setTimeout(() => {
+                    this.setState({isModalVisible: false})        
+                }, 1000);
+                setTimeout(() => {
+                    this.props.navigation.navigate('Completed', {referenceId:this.state.referenceId})
+                }, 1400)
+
                 // Alert.alert('Order Confirmed')
             })
              
         } catch (error) {
+            this.setState({isModalVisible: false})
+            this.setState({Error:err})
             console.log(error)
         }
     }
@@ -97,8 +105,8 @@ export default class OrderDetails extends Component {
             var order_value = 0;
             for(var i=0 ; i < list.length ; i++){
                 //console.log(list[i].sellingprice)
-                order_value += parseInt(list[i].costprice,10)
-                total_amount += parseInt(list[i].sellingprice,10)
+                order_value += (parseInt(list[i].costprice,10)*parseInt(list[i].quantity,10))
+                total_amount += (parseInt(list[i].sellingprice,10)*parseInt(list[i].quantity,10))
             }
             this.setState({total_amount})
             this.setState({order_value})
@@ -109,11 +117,15 @@ export default class OrderDetails extends Component {
     }
 
     componentDidMount() {
+        this._refresh()
+    }
+
+    _refresh = () => {
         // generating reference ID
 
         this.setState({
             products_list: Object.values(this.props.route.params),
-            referenceId: Math.floor(Math.random() * 9000000000) + 1000000000
+            referenceId: 'REF'+ (Math.floor(Math.random() * 9000000000) + 1000000000)
         })
         this.UserId()
         this.calculate()
@@ -121,18 +133,32 @@ export default class OrderDetails extends Component {
 
   render() {
     
-    // console.log('\n\nOrder Details:\n',this.state.products_list)
+    //console.log('\n\nOrder Details:\n',this.state.products_list)
 
     return (
       <View style={{flex:1}}>
-        <OrderDetailsHeader goback={ () => this.props.navigation.goBack()}/> 
-        <Modal isVisible={this.state.isModalVisible}>
-              <View style={{height: height-600, width:width-100, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
-                    <Octicons name="checklist" size={45} color="#76BA1B" />
-                    <Text style={{fontSize:20, textAlign:'center'}}>Ordered Successfully!</Text>
-              </View>
-            </Modal>   
+            
+            <OrderDetailsHeader goback={ () => this.props.navigation.goBack()}/> 
+                
+                {/* Confirm Modal */}
+                <Modal isVisible={this.state.isModalVisible}>
+                    <View style={{height: height-600, width:width-100, borderRadius:20, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                        <Octicons name="checklist" size={45} color="#76BA1B" />
+                        <Text style={{fontSize:20, textAlign:'center'}}>Ordered Successfully!</Text>
+                    </View>
+                </Modal>
+                
+                {/* Showing Error */}
+                <Modal isVisible={this.state.Error != null}>
+                <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
+                    <View style={{alignItems:'center', justifyContent:'center'}}>
+                    <Text style={{fontSize:17, textAlign:'center'}}>Oops!</Text>
+                    <Text style={{fontSize:17, textAlign:'center'}}>Something went wrong</Text>
+                    </View>
+                </View>
+                </Modal>   
         <ScrollView>
+        <PTRView onRefresh={this._refresh} >
             <View style={{height:20}}></View>
             <View style={{flex:1, height:30, width:'100%', alignItems:'center'}}>
                 <View style={{flex:1, width:'95%', backgroundColor:"#D3D3D3"}}>
@@ -188,7 +214,7 @@ export default class OrderDetails extends Component {
                     renderItem={({ item }) => 
                             <Card3
                                 id={item._id}    productid={item.productid}    title={item.title} 
-                                sellingprice={item.sellingprice}
+                                sellingprice={item.sellingprice}    quantity={item.quantity}
                                 imageurl={item.imageurl}
                             />
                     }
@@ -255,10 +281,9 @@ export default class OrderDetails extends Component {
                 </TouchableOpacity>
                 </View>
             </View>
+            </PTRView>
         </ScrollView>
-        <ConfirmOrder    confirm={ () => this.confirmOrder(this.state.total_amount) }
-        
-        />
+        <ConfirmOrder    confirm={ () => this.confirmOrder(this.state.total_amount) }/>
       </View>
     );
   }

@@ -34,23 +34,33 @@ export default class Header extends React.Component {
              <TouchableOpacity onPress={this.props.navigation} activeOpacity={0.8}>
                <Feather name="menu" size={30} color="white" />
              </TouchableOpacity>
-             {/* <View style={{flexDirection:"row" ,height: 35, width:250, borderRadius: 25, backgroundColor: "#fff"}}>
-                <TextInput
-                    style={{
-                        height: 35,
-                        width:230,
-                        fontSize: 17,
-                        color: "#010101",
-                        borderRadius: 25,
-                        backgroundColor: "#fff",
-                        paddingHorizontal:15}}
-                        autoCapitalize="none"
-                        placeholder="Search"
-                        onChangeText={searchtext => this.setState({ searchtext })}
-                        value={this.state.searchtext}
-                ></TextInput>
-                <EvilIcons name="search" size={28} color="#A9A9A9" style={{marginTop:5, marginLeft:-13}} />
-             </View> */}
+             <TouchableOpacity activeOpacity={0.9} onPress={this.props.search}>
+              <View style={{flexDirection:"row" ,height: 35, width:250, borderRadius: 25, backgroundColor: "#fff"}}>
+                  <View style={{flex:1, flexDirection:'row', alignItems:'center'}}>
+                    <View style={{flex:0.1}}></View>
+                    <View style={{flex:0.75}}>
+                      <Text style={{color:'grey', fontSize:17}}>Search</Text>
+                    </View>
+                    <View style={{flex:0.15}}>
+                      <EvilIcons name="search" size={28} color="#A9A9A9" />
+                    </View>
+                  </View>
+                  {/* <TextInput
+                      style={{
+                          height: 35,
+                          width:230,
+                          fontSize: 17,
+                          color: "#010101",
+                          borderRadius: 25,
+                          backgroundColor: "#fff",
+                          paddingHorizontal:15}}
+                          autoCapitalize="none"
+                          placeholder="Search"
+                          onChangeText={searchtext => this.setState({ searchtext })}
+                          value={this.state.searchtext}
+                  ></TextInput> */}
+              </View>
+             </TouchableOpacity>
              <TouchableOpacity onPress={this.props.cartIcon} style={{height:45, width:35, flexDirection:'row'}}>
                <AntDesign name="shoppingcart" size={30} color="white" />
                <View style={{marginLeft:-11}}>

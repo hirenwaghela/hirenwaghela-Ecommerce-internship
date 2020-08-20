@@ -23,7 +23,12 @@ export const Card1 = (props) => (
                             <View style={{flex:0.6, flexDirection:'row'}}>
                                 <Text style={{ color:"#76BA1B", fontSize:17}}>₹ {props.sellingprice}  </Text> 
                                 <Text style={{ textDecorationLine: 'line-through', fontSize:13, marginTop:4}}>MRP {props.costprice}</Text>
-                                <Text style={{ color:"red", fontSize:17}}>  {parseInt((props.costprice - props.sellingprice)*100/props.costprice,10)}%</Text>
+                                {props.costprice == 0
+                                    ?
+                                    <Text style={{ color:"red", fontSize:17}}>  0%</Text>
+                                    :
+                                    <Text style={{ color:"red", fontSize:17}}>  {parseInt((props.costprice - props.sellingprice)*100/props.costprice,10)}%</Text>
+                                }
                             </View>
                         </View>
                         <View style={{flex:0.3}}>
@@ -75,15 +80,15 @@ export const Card2 = (props) => (
                             
                             <View style={{flex:0.2}}>
                                 <View style={{flex:1, width:'90%', flexDirection:"row", justifyContent:"space-between"}}>
-                                <Text style={{textDecorationLine: 'line-through', fontSize:14,}}>MRP {props.sellingprice}</Text>
-                                    <Text style={{fontSize:14, color:"#76BA1B"}}>50% Off</Text>
+                                <Text style={{textDecorationLine: 'line-through', fontSize:14,}}>MRP {props.costprice}</Text>
+                                    <Text style={{fontSize:14, color:"#76BA1B"}}>{Math.round(((parseInt(props.costprice,10) - parseInt(props.sellingprice,10))/parseInt(props.costprice,10)) * 100) + '%'}</Text>
                                 </View>
                             </View>
 
                             <View style={{flex:0.2}}>
                                 <View style={{flex:1, width:'90%', flexDirection:"row", justifyContent:"space-between"}}>
                                     <Text style={{fontSize:14}}>Price/pc</Text>
-                                    <Text style={{fontSize:14}}>₹ {props.costprice}</Text>
+                                    <Text style={{fontSize:14}}>₹ {props.sellingprice}</Text>
                                 </View>
                             </View>
 
@@ -101,7 +106,7 @@ export const Card2 = (props) => (
                     <View style={{flex:0.3, justifyContent:'center'}}>
                         <View style={{flex:1, width:'90%',flexDirection:"row", justifyContent:"space-between"}}>
                             <Text style={{fontSize:20}}>You Pay</Text>
-                            <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {props.costprice}</Text>
+                            <Text style={{fontSize:20, color:"#76BA1B"}}>₹ {parseInt(props.sellingprice,10) * parseInt(props.quantity,10)}</Text>
                         </View>
                     </View>
                 </View>
@@ -126,13 +131,18 @@ export const Card3 = (props) => (
                     <View style={{flex:0.1}}></View>
                     <View style={{flex:0.9}}>
                         <Text style={{width:220, fontSize:16, marginTop:10}}>{props.title}</Text>
-                        {/* <Text style={{fontSize:12, marginTop:5}}>Qty-1</Text> */}
-                        {/* <View style={{flexDirection:'row', width:'70%', justifyContent:'space-between'}}>
-                            <Text style={{fontSize:12}}>Orser ID-</Text>
-                            <Text style={{fontSize:12}}>#DGHSHBDHS</Text>
-                        </View> */}
+                        <View style={{flexDirection:'row'}}>
+                            <View style={{marginTop:5, height:25, width:45, backgroundColor:'#fff',  justifyContent:'center', alignItems:'center', elevation:3}}>
+                                <Text style={{fontSize:13, textAlign:'center'}}>Qty : {props.quantity}</Text>
+                            </View>
+                            <View style={{flex:1, justifyContent: 'center', alignItems:'flex-end', flexDirection:'row'}}>
+                                <Text>Price/pc:  </Text>
+                                <Text>₹ {props.sellingprice}</Text>
+                            </View>
+                        </View>
+                        
                         <View style={{marginTop:10, alignItems:"flex-end"}}>
-                            <Text style={{fontSize:24, color:"#76BA1B"}}>₹ {props.sellingprice}</Text>
+                            <Text style={{fontSize:24, color:"#76BA1B"}}>₹ {props.sellingprice * props.quantity}</Text>
                         </View>
                     </View>
                     <View style={{flex:0.1}}></View>
@@ -143,38 +153,75 @@ export const Card3 = (props) => (
 );
 
 
-export const MyOrdersCard = (props) => (
-            <View style={{flex:1, flexDirection:"row", minHeight:150, paddingVertical:10, marginVertical:2, backgroundColor:"#fff", elevation:4 }} > 
+export const MyOrdersCopy = (props) => (
+<View style={{flex:1, flexDirection:"row", minHeight:150, paddingVertical:10, marginVertical:2, backgroundColor:"#fff", elevation:4 }} > 
                 <View style={{flex:0.3, alignItems:'center'}}>
                     <View style={{width:60, height:100}}>
-                        <Image
+                        {/* <Image
                             style={styles.image}
                             source={{uri:`${props.imageurls.split(',')[0]}`}}
-                        />
+                        /> */}
                     </View>
                 </View>    
                 <View style={{flex:0.7, alignItems:'center', justifyContent:'center'}}>
-                    <Text style={{width:220, fontSize:15}}>{props.titles.split(',').map((index,item)=>{
+                    {/* <Text style={{width:220, fontSize:15}}>{props.titles.split(',').map((index,item)=>{
                         return '• '+ props.titles.split(',')[item] + '\n'
-                        })}</Text>
+                        })}</Text> */}
                     <View style={{width:'85%', flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={{fontSize:16}}>Total Cost</Text>
-                        <Text style={{fontSize:16, color:"#76BA1B"}}>₹ {props.totalcost}</Text>
+                        {/* <Text style={{fontSize:16, color:"#76BA1B"}}>₹ {props.totalcost}</Text> */}
                     </View>
                     <View style={{width:'85%', flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={{fontSize:12}}>Orser ID-</Text>
-                        <Text style={{fontSize:12}}>{props.referenceid}</Text>
+                        {/* <Text style={{fontSize:12}}>{props.referenceid}</Text> */}
                     </View>
                     <View style={{width:'85%', flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={{fontSize:11}}>Expected delivery</Text>
-                        <Text style={{fontSize:11}}>{props.createdDate}</Text>
+                        {/* <Text style={{fontSize:11}}>{props.createdDate}</Text> */}
                     </View>
                     <View style={{width:'85%', justifyContent:'space-between'}}>
-                        <Text style={{fontSize:16, fontWeight:'bold', marginTop:7, color:props.status=='processing'?(props.status!=='shipped'?'orange':'#76BA1B'):(props.status!=='shipped'?'#76BA1B':'#76BA1B')}}>{props.status.charAt(0).toUpperCase() + props.status.slice(1)}</Text>
+                        {/* <Text style={{fontSize:16, fontWeight:'bold', marginTop:7, color:props.status=='processing'?(props.status!=='shipped'?'orange':'#76BA1B'):(props.status!=='shipped'?'#76BA1B':'#76BA1B')}}>{props.status.charAt(0).toUpperCase() + props.status.slice(1)}</Text> */}
                     </View>
                     
                 </View>         
             </View>
+
+
+);
+
+
+export const MyOrdersCard = (props) => (
+            <TouchableOpacity   onPress={props.navigation}
+                                activeOpacity={0.8}
+                                style={{flex:1, flexDirection:"row", minHeight:80, paddingVertical:10, marginVertical:2, backgroundColor:"#fff", elevation:4 }} > 
+                <View style={{flex:0.3, alignItems:'center'}}>
+                        <View style={{width:60, height:60, borderRadius:30, borderColor:'#D3D3D3', borderWidth:1, justifyContent:'center'}}>
+                            <View style={{width:56, height:56, borderRadius:28, alignSelf:'center', justifyContent: 'center',}}>
+                                <Image
+                                    style={{
+                                        flex: 1,
+                                        height: null, 
+                                        width: null, 
+                                        resizeMode: 'contain', 
+                                        borderRadius:45
+                                    }}
+                                    source={require('./../assets/apple-icon.png')}
+                                />
+                            </View>
+                        </View>
+                </View>    
+                <View style={{flex:0.7}}>
+                    <View style={{flex:0.65, justifyContent:'flex-end'}}>
+                        <View style={{width:'85%', flexDirection:'row'}}>
+                            <Text style={{fontSize:16}}>Order ID    </Text>
+                            <Text style={{fontSize:16}}>#{props.referenceid}</Text>
+                        </View>
+                    </View>         
+                    <View style={{flex:0.35}}>
+                        <Text style={{color:'grey', fontSize:12}}>Tap to View Order</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
 
 );
 
@@ -182,7 +229,7 @@ export const MyOrdersCard = (props) => (
 export const SmallCategoryCards = (props) => (
     <View style={{flex:1, alignItems:"center", marginBottom:10}}>
         <TouchableOpacity activeOpacity={0.8} 
-                          style={{ flex:1, width: width/3 - 20, height: width/3 - 20,  
+                          style={{ width: width/3 - 20, height: width/3 - 20,  
                                    borderRadius:205, backgroundColor:"#fff", justifyContent:"center", 
                                    alignItems:"center", elevation:10}}
                                    onPress={props.onPress}
@@ -192,7 +239,7 @@ export const SmallCategoryCards = (props) => (
                     source={{uri:`${props.imageurl}`}}
                 />    
         </TouchableOpacity>
-        <Text style={{fontSize:15, marginTop:5, textAlign:'center'}}>{props.title}</Text>
+        <Text style={{fontSize:15, marginTop:5, textAlign:'center', width:width/3}}>{props.title}</Text>
     </View>
 ); 
 
