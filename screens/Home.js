@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList, AsyncStorage, ActivityIndicator, NativeModules } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, BackHandler, ScrollView, FlatList, AsyncStorage, ActivityIndicator, NativeModules } from 'react-native';
 import { Swiper2 } from "../components/Swiper" ;
 import  { Card1, SmallCategoryCards } from "../components/card"
 import Header_Search from "../components/header_search";
@@ -15,6 +15,7 @@ let Mobile = ''
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
+        this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
         this.state = {
             //refreshing: false,
             Error: null,
@@ -103,6 +104,19 @@ export default class Home extends React.Component {
 
     componentDidMount() {
         this._refresh()
+    }
+
+    componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
+      }
+    
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
+    }
+
+    handleBackButtonClick() {
+        this.props.navigation.navigate('Home');
+    return true;
     }
 
     _refresh = () => {
