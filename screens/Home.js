@@ -16,6 +16,7 @@ export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            //refreshing: false,
             Error: null,
             userId: '',
             swiper: [],
@@ -55,6 +56,8 @@ export default class Home extends React.Component {
         })
         // AsyncStorage.setItem('cart_list_length', this.state.cart_list.length);
 
+        this.callapis()
+
       }
 
     callapis = () => {
@@ -81,15 +84,17 @@ export default class Home extends React.Component {
             })
         
         // fetching all latest product 3) API
-
+        // this.setState({refreshing: true})
         axios.get('https://server.dholpurshare.com/api/product')
 
             .then((res)=>{
                 // console.log('\n\n\n Latest Products')
                 // console.log(res.data.data)
                 this.setState({latest_products: res.data.data})
+                this.setState({refreshing: false})
             }).catch(err => {
                 console.log(err)
+                // this.setState({refreshing: false})
                 this.setState({Error: err})
             })
 
@@ -101,8 +106,7 @@ export default class Home extends React.Component {
     }
 
     _refresh = () => {
-        this.localstoragevariables()           // getting the localStorage variables
-        this.callapis()
+        this.localstoragevariables()           // getting the localStorage variable
          
     }
 
@@ -115,9 +119,9 @@ render(){
                                 cartIcon = { () => this.props.navigation.navigate('MyCart')}
                                 cart_list_length = {this.state.cart_list.length}
                 />
-                <ScrollView>
                 <PTRView onRefresh={this._refresh} >
-                    
+                <ScrollView>
+    
                     {/* Showing Error */}
                     <Modal isVisible={this.state.Error != null}>
                     <View style={{height: height-680, width:width-160, borderRadius:5, alignSelf:'center', alignItems:'center', justifyContent:'center', backgroundColor:'#fff'}}>
@@ -167,11 +171,13 @@ render(){
                                         )}
                                 />
                             }
+                            // refreshing={this.state.refreshing}
+                            // onRefresh={this._refresh}
 
                         />
-                        </PTRView>
+                        
                 </ScrollView>
-            
+                </PTRView>
         </View>
       );
   }

@@ -109,7 +109,7 @@ export default class MyProfile extends Component {
         // console.log('token ', token)
         // console.log('userId ', userId)
 
-        this.props.navigation.navigate('AuthStack')
+        //this.props.navigation.navigate('AuthStack')
     }
 
   render() {

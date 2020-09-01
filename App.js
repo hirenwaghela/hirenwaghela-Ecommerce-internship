@@ -203,7 +203,7 @@ const CustomDrawer = (props) => {
               </TouchableOpacity> */}
               <View style={{height:1, backgroundColor:'#D3D3D3'}}></View>
             </ScrollView>
-            <DrawerBottom navigation={()=>changeLogIn(props)}/>
+            {/* <DrawerBottom navigation={()=>changeLogIn(props)}/> */}
           </SafeAreaView>
           
 
@@ -256,11 +256,14 @@ export default class App extends React.Component {
     return (
       <NavigationContainer>
         <Stack.Navigator>
-          {/* {!this.state.isLoggedIn ? ( */}
-            <Stack.Screen name="AuthStack" component={AuthStack} options={navOptionHandler}/>
-          {/* ) : ( */}
+          {!this.state.isLoggedIn ? (
+            <>
+              <Stack.Screen name="AuthStack" component={AuthStack} options={navOptionHandler}/>
+              <Stack.Screen name="DrawerApp" component={DrawerApp} options={navOptionHandler}/>
+            </>
+          ) : ( 
             <Stack.Screen name="DrawerApp" component={DrawerApp} options={navOptionHandler}/>
-          {/* )} */}
+          )} 
         </Stack.Navigator>
       </NavigationContainer>
     );

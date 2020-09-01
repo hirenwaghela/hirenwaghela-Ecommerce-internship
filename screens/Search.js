@@ -6,6 +6,7 @@ import  { Card1, SmallCategoryCards } from "../components/card"
 import { Fontisto, EvilIcons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
+import PTRView from 'react-native-pull-to-refresh';
 import axios from "axios";
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -156,12 +157,13 @@ export default class Search extends Component {
                 </View>
               </View>
             </Modal>
-        
-        <ScrollView>
-          <View style={{flex:1}}>
-            {_productList}
-          </View> 
-        </ScrollView> 
+        <PTRView onRefresh={this._refresh} >
+          <ScrollView>
+            <View style={{flex:1}}>
+              {_productList}
+            </View> 
+          </ScrollView> 
+        </PTRView>
       </View>
     );
   }
